@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Monitoring Pencapaian kWh P2TL</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- Header Navigation Bar -->
+    <header class="bg-teal-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-yellow-400 text-teal-900 p-2 rounded-lg font-black text-xl flex items-center justify-center w-10 h-10 shadow">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">MONITORING P2TL HARIAN & MINGGUAN (LM)</h1>
+                    <p class="text-xs text-teal-200">PT PLN (Persero) UP3 PAREPARE</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="fetchDataFromAPI()" class="bg-teal-800 hover:bg-teal-900 text-teal-100 px-3 py-1.5 rounded-lg text-xs font-semibold border border-teal-600 transition flex items-center space-x-1">
+                    <i class="fa-solid fa-rotate" id="refresh-icon"></i>
+                    <span>Refresh Data</span>
+                </button>
+                <span id="status-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-800 text-teal-100 border border-teal-600">
+                    <span class="w-2 h-2 mr-1.5 bg-amber-400 rounded-full animate-pulse"></span> Connecting...
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Mode Selector Tabs -->
+        <div class="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 flex space-x-2">
+            <button id="tab-daily" onclick="switchMode('daily')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm">
+                <i class="fa-regular fa-calendar-days"></i>
+                <span>Laporan Filter Harian / Bulanan</span>
+            </button>
+            <button id="tab-weekly" onclick="switchMode('weekly')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Laporan Realisasi LM Mingguan (M1 - M4)</span>
+            </button>
+        </div>
+
+        <!-- Section 1: Filter Controls -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 transition-all">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center space-x-2">
+                <i class="fa-solid fa-filter text-teal-600"></i>
+                <span>Parameter Filter Data</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Dropdown Unit -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">PILIH UNIT / ULP</label>
+                    <select id="filter-unit" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
+                        <option value="ALL">SEMUA ULP (TOTAL UP3 PAREPARE)</option>
+                        <option value="MATTIROTASI">ULP MATTIROTASI</option>
+                        <option value="BARRU">ULP BARRU</option>
+                        <option value="RAPPANG">ULP RAPPANG</option>
+                        <option value="TANRU TEDONG">ULP TANRU TEDONG</option>
+                        <option value="PANGSID">ULP PANGSID</option>
+                        <option value="SOPPENG">ULP SOPPENG</option>
+                        <option value="PAJALESANG">ULP PAJALESANG</option>
+                    </select>
+                </div>
+
+                <!-- Dropdown Bulan (Januari - Desember) -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">PILIH BULAN</label>
+                    <select id="filter-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
+                        <option value="1">JANUARI 2026</option>
+                        <option value="2">FEBRUARI 2026</option>
+                        <option value="3">MARET 2026</option>
+                        <option value="4">APRIL 2026</option>
+                        <option value="5">MEI 2026</option>
+                        <option value="6">JUNI 2026</option>
+                        <option value="7">JULI 2026</option>
+                        <option value="8">AGUSTUS 2026</option>
+                        <option value="9">SEPTEMBER 2026</option>
+                        <option value="10">OKTOBER 2026</option>
+                        <option value="11">NOVEMBER 2026</option>
+                        <option value="12">DESEMBER 2026</option>
+                    </select>
+                </div>
+
+                <!-- Dropdown Tanggal Specific (Mode Daily) -->
+                <div id="container-filter-date">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">PILIH TANGGAL SPESIFIK</label>
+                    <select id="filter-date" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
+                        <option value="ALL">SEMUA TANGGAL (1 BULAN)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Custom Weekly Date Range Selector (Mode LM Mingguan) -->
+            <div id="container-weekly-ranges" class="hidden mt-5 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center space-x-1">
+                        <i class="fa-regular fa-calendar-check text-teal-600"></i>
+                        <span>Pengaturan Range Tanggal LM Mingguan</span>
+                    </span>
+                    <button onclick="resetDefaultWeeks()" class="text-xs text-teal-600 hover:text-teal-800 font-semibold underline">
+                        Reset Ke Default Minggu
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-teal-50/50 p-3 rounded-lg border border-teal-100">
+                        <span class="text-xs font-bold text-teal-900 block mb-1">Minggu 1 (M1)</span>
+                        <div class="flex items-center space-x-1 text-xs">
+                            <input type="number" id="m1-start" min="1" max="31" value="1" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                            <span class="text-slate-400">s/d</span>
+                            <input type="number" id="m1-end" min="1" max="31" value="7" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                        </div>
+                    </div>
+                    <div class="bg-teal-50/50 p-3 rounded-lg border border-teal-100">
+                        <span class="text-xs font-bold text-teal-900 block mb-1">Minggu 2 (M2)</span>
+                        <div class="flex items-center space-x-1 text-xs">
+                            <input type="number" id="m2-start" min="1" max="31" value="8" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                            <span class="text-slate-400">s/d</span>
+                            <input type="number" id="m2-end" min="1" max="31" value="14" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                        </div>
+                    </div>
+                    <div class="bg-teal-50/50 p-3 rounded-lg border border-teal-100">
+                        <span class="text-xs font-bold text-teal-900 block mb-1">Minggu 3 (M3)</span>
+                        <div class="flex items-center space-x-1 text-xs">
+                            <input type="number" id="m3-start" min="1" max="31" value="15" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                            <span class="text-slate-400">s/d</span>
+                            <input type="number" id="m3-end" min="1" max="31" value="21" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                        </div>
+                    </div>
+                    <div class="bg-teal-50/50 p-3 rounded-lg border border-teal-100">
+                        <span class="text-xs font-bold text-teal-900 block mb-1">Minggu 4 (M4)</span>
+                        <div class="flex items-center space-x-1 text-xs">
+                            <input type="number" id="m4-start" min="1" max="31" value="22" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                            <span class="text-slate-400">s/d</span>
+                            <input type="number" id="m4-end" min="1" max="31" value="31" class="w-full p-1.5 border rounded text-center font-bold bg-white">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Summary KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Bulan Ini</p>
+                    <h3 id="kpi-target" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">kWh P2TL Target</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-bullseye"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Realisasi kWh</p>
+                    <h3 id="kpi-realisasi" class="text-2xl font-extrabold text-teal-700 mt-1">0</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">kWh Terakumulasi</p>
+                </div>
+                <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-charging-station"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Sisa / Defisit Target</p>
+                    <h3 id="kpi-gap" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">kWh Belum Tercapai</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-scale-unbalanced"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">% Pencapaian Target</p>
+                    <h3 id="kpi-percentage" class="text-2xl font-extrabold text-emerald-600 mt-1">0.0%</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Pencapaian vs Target</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-percent"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Graphical Visualization -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-chart-column text-teal-600"></i>
+                    <span id="chart-title">Grafik Tren Realisasi kWh Harian</span>
+                </h2>
+            </div>
+            <div class="relative h-72 w-full">
+                <canvas id="p2tlChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Section 4: Data Table View -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider" id="table-title">Tabel Rincian Pencapaian Realisasi</h2>
+                    <p class="text-xs text-slate-500">Data terhubung langsung dengan sheet LONG TABLE Google Sheets</p>
+                </div>
+                <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center space-x-1.5 shadow-sm">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Export Excel / CSV</span>
+                </button>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200 font-bold" id="table-head">
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-100 font-medium">
+                        <tr>
+                            <td colspan="7" class="text-center py-12 text-slate-400">
+                                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-teal-600"></i>
+                                <p>Mengambil data dari Google Sheets...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 py-6 text-center text-xs mt-12 border-t border-slate-700">
+        <p>© 2026 PT PLN (Persero) UP3 Parepare — Sistem Informasi Pencapaian kWh P2TL Harian & Mingguan</p>
+    </footer>
+
+    <!-- JavaScript Integration -->
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwU2atLgBPxljN8B63p_j1Fk9IEngmHuNJi-7nFZj_V__9pUAK5K7W1-EsFFA7sp-pYBA/exec";
+
+        const unitsList = ["MATTIROTASI", "BARRU", "RAPPANG", "TANRU TEDONG", "PANGSID", "SOPPENG", "PAJALESANG"];
+        const targetMap = {
+            "MATTIROTASI": { t2026: 79730, tBulan: 6644, tMinggu: 1661, tHari: 256 },
+            "BARRU": { t2026: 63252, tBulan: 5271, tMinggu: 1318, tHari: 203 },
+            "RAPPANG": { t2026: 247638, tBulan: 20637, tMinggu: 5159, tHari: 794 },
+            "TANRU TEDONG": { t2026: 578830, tBulan: 48236, tMinggu: 12059, tHari: 1855 },
+            "PANGSID": { t2026: 203134, tBulan: 16927, tMinggu: 4232, tHari: 651 },
+            "SOPPENG": { t2026: 449616, tBulan: 37468, tMinggu: 9367, tHari: 1441 },
+            "PAJALESANG": { t2026: 803312, tBulan: 66943, tMinggu: 16736, tHari: 2575 }
+        };
+
+        let dbP2TL = [];
+        let currentMode = 'daily';
+        let p2tlChartInstance = null;
+
+        const filterUnitEl = document.getElementById('filter-unit');
+        const filterMonthEl = document.getElementById('filter-month');
+        const filterDateEl = document.getElementById('filter-date');
+        const containerWeeklyRanges = document.getElementById('container-weekly-ranges');
+        const containerFilterDate = document.getElementById('container-filter-date');
+        const statusBadge = document.getElementById('status-badge');
+        const refreshIcon = document.getElementById('refresh-icon');
+
+        const mInputs = {
+            m1: { start: document.getElementById('m1-start'), end: document.getElementById('m1-end') },
+            m2: { start: document.getElementById('m2-start'), end: document.getElementById('m2-end') },
+            m3: { start: document.getElementById('m3-start'), end: document.getElementById('m3-end') },
+            m4: { start: document.getElementById('m4-start'), end: document.getElementById('m4-end') }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set default bulan sesuai bulan berjalan
+            const currentMonthIndex = new Date().getMonth() + 1;
+            filterMonthEl.value = currentMonthIndex <= 12 ? currentMonthIndex : 1;
+            
+            populateDaysDropdown();
+            setupEventListeners();
+            initChart();
+            fetchDataFromAPI();
+        });
+
+async function fetchDataFromAPI() {
+    refreshIcon.classList.add('fa-spin');
+    statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-amber-400 rounded-full animate-pulse"></span> Syncing...`;
+    statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-800 text-teal-100 border border-teal-600";
+
+    try {
+        // Tambahkan opsi redirect: 'follow' untuk menangani Google Redirect 302
+        const response = await fetch(WEB_APP_URL, {
+            method: 'GET',
+            redirect: 'follow'
+        });
+
+        if (!response.ok) throw new Error("Gagal mengambil data dari Google Sheets");
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        dbP2TL = data.map((item, index) => {
+            const rawTanggal = String(item["TANGGAL"] || item["tanggal"] || "").trim();
+            let monthVal = 1;
+            let dayVal = 1;
+            let formattedDate = "";
+
+            if (rawTanggal) {
+                const dateParts = rawTanggal.split('T')[0].split('-');
+                if (dateParts.length === 3) {
+                    monthVal = parseInt(dateParts[1], 10);
+                    dayVal = parseInt(dateParts[2], 10);
+                    formattedDate = `${dateParts[0]}-${String(monthVal).padStart(2, '0')}-${String(dayVal).padStart(2, '0')}`;
+                }
+            }
+
+            const unitName = String(item["UNIT"] || item["unit"] || "").toUpperCase().trim();
+            const rawRealisasi = item["REALISASI"] !== undefined ? item["REALISASI"] : (item["realisasi"] || 0);
+            const kwhVal = parseFloat(rawRealisasi);
+
+            return {
+                id: item["ID"] || item["id"] || (index + 1),
+                tanggal: formattedDate || rawTanggal,
+                bulan: monthVal,
+                hari: dayVal,
+                unit: unitName,
+                target2026: targetMap[unitName]?.t2026 || parseFloat(item["TARGET 2026"] || 0),
+                targetBulan: targetMap[unitName]?.tBulan || parseFloat(item["TARGET BULAN"] || 0),
+                targetMinggu: targetMap[unitName]?.tMinggu || parseFloat(item["TARGET MINGGU"] || 0),
+                targetHari: targetMap[unitName]?.tHari || parseFloat(item["TARGET HARI"] || 0),
+                kwhRealisasi: isNaN(kwhVal) ? 0 : kwhVal
+            };
+        });
+
+        statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> DB Connected`;
+        statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-900 text-emerald-100 border border-emerald-700";
+        renderDashboard();
+    } catch (err) {
+        console.error("Error fetching data:", err);
+        statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-rose-500 rounded-full"></span> Connection Failed`;
+        statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-900 text-rose-100 border border-rose-700";
+        
+        document.getElementById('table-body').innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-8 text-rose-600 font-semibold">
+                    ⚠️ Gagal mengambil data dari Google Sheets (${err.message}). Pastikan Anda telah melakukan 'New Deployment' dengan akses 'Anyone'.
+                </td>
+            </tr>`;
+    } finally {
+        refreshIcon.classList.remove('fa-spin');
+    }
+}
+        function populateDaysDropdown() {
+            const month = parseInt(filterMonthEl.value);
+            const daysCount = new Date(2026, month, 0).getDate();
+            filterDateEl.innerHTML = `<option value="ALL">SEMUA TANGGAL (1 BULAN)</option>`;
+            for (let i = 1; i <= daysCount; i++) {
+                const dateStr = `2026-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                filterDateEl.innerHTML += `<option value="${i}">Tanggal ${i} (${dateStr})</option>`;
+            }
+        }
+
+        function setupEventListeners() {
+            filterUnitEl.addEventListener('change', renderDashboard);
+            filterMonthEl.addEventListener('change', () => {
+                populateDaysDropdown();
+                renderDashboard();
+            });
+            filterDateEl.addEventListener('change', renderDashboard);
+
+            Object.values(mInputs).forEach(m => {
+                m.start.addEventListener('change', renderDashboard);
+                m.end.addEventListener('change', renderDashboard);
+            });
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            const tabDaily = document.getElementById('tab-daily');
+            const tabWeekly = document.getElementById('tab-weekly');
+
+            if (mode === 'daily') {
+                tabDaily.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                tabWeekly.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100";
+                containerFilterDate.classList.remove('hidden');
+                containerWeeklyRanges.classList.add('hidden');
+                document.getElementById('chart-title').innerText = "Grafik Tren Realisasi kWh Harian";
+                document.getElementById('table-title').innerText = "Tabel Rincian Pencapaian Realisasi Harian";
+            } else {
+                tabWeekly.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                tabDaily.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100";
+                containerFilterDate.classList.add('hidden');
+                containerWeeklyRanges.classList.remove('hidden');
+                document.getElementById('chart-title').innerText = "Grafik Komparasi Realisasi LM Mingguan (M1 - M4)";
+                document.getElementById('table-title').innerText = "Tabel Matriks Realisasi LM Mingguan";
+            }
+            renderDashboard();
+        }
+
+        function resetDefaultWeeks() {
+            mInputs.m1.start.value = 1; mInputs.m1.end.value = 7;
+            mInputs.m2.start.value = 8; mInputs.m2.end.value = 14;
+            mInputs.m3.start.value = 15; mInputs.m3.end.value = 21;
+            mInputs.m4.start.value = 22; mInputs.m4.end.value = 31;
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const selectedUnit = filterUnitEl.value;
+            const selectedMonth = parseInt(filterMonthEl.value);
+
+            if (currentMode === 'daily') {
+                renderDailyView(selectedUnit, selectedMonth);
+            } else {
+                renderWeeklyView(selectedUnit, selectedMonth);
+            }
+        }
+
+        function renderDailyView(unit, month) {
+            const selectedDay = filterDateEl.value;
+
+            let filtered = dbP2TL.filter(row => row.bulan === month);
+            if (unit !== "ALL") {
+                filtered = filtered.filter(row => row.unit === unit);
+            }
+            if (selectedDay !== "ALL") {
+                filtered = filtered.filter(row => row.hari === parseInt(selectedDay));
+            }
+
+            let totalTargetBulan = 0;
+            if (unit === "ALL") {
+                totalTargetBulan = Object.values(targetMap).reduce((sum, item) => sum + item.tBulan, 0);
+            } else {
+                totalTargetBulan = targetMap[unit]?.tBulan || 0;
+            }
+
+            const totalRealisasi = filtered.reduce((sum, row) => sum + row.kwhRealisasi, 0);
+            const gap = totalTargetBulan - totalRealisasi;
+            const pct = totalTargetBulan > 0 ? ((totalRealisasi / totalTargetBulan) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-target').innerText = totalTargetBulan.toLocaleString('id-ID');
+            document.getElementById('kpi-realisasi').innerText = totalRealisasi.toLocaleString('id-ID');
+            document.getElementById('kpi-gap').innerText = gap > 0 ? gap.toLocaleString('id-ID') : "0 (TERCAPAI)";
+            document.getElementById('kpi-percentage').innerText = pct + "%";
+
+            const thead = document.getElementById('table-head');
+            thead.innerHTML = `
+                <tr>
+                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">TANGGAL</th>
+                    <th class="px-4 py-3">UNIT / ULP</th>
+                    <th class="px-4 py-3 text-right">TARGET BULAN</th>
+                    <th class="px-4 py-3 text-right">TARGET HARI</th>
+                    <th class="px-4 py-3 text-right">REALISASI KWH</th>
+                    <th class="px-4 py-3 text-center">STATUS</th>
+                </tr>
+            `;
+
+            const tbody = document.getElementById('table-body');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Tidak ada data untuk filter ini.</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(row => `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-4 py-3 font-mono text-xs">${row.id}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-800">${row.tanggal}</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-block px-2 py-0.5 text-xs font-bold bg-slate-100 text-slate-700 rounded">${row.unit}</span>
+                        </td>
+                        <td class="px-4 py-3 text-right">${row.targetBulan.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right">${row.targetHari.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-extrabold ${row.kwhRealisasi > 0 ? 'text-teal-700' : 'text-slate-400'}">
+                            ${row.kwhRealisasi.toLocaleString('id-ID')}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            ${row.kwhRealisasi >= row.targetHari ? 
+                                `<span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-bold">Capai Target</span>` :
+                                (row.kwhRealisasi > 0 ? `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded font-bold">Ada Realisasi</span>` : 
+                                `<span class="bg-slate-100 text-slate-400 text-xs px-2 py-0.5 rounded">Nihil</span>`)}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const daysInMonth = new Date(2026, month, 0).getDate();
+            const labels = Array.from({length: daysInMonth}, (_, i) => `Tgl ${i + 1}`);
+            const chartData = labels.map((_, i) => {
+                const dayNum = i + 1;
+                return filtered.filter(r => r.hari === dayNum).reduce((sum, r) => sum + r.kwhRealisasi, 0);
+            });
+
+            updateChart(labels, [{
+                label: 'Realisasi kWh P2TL Harian',
+                data: chartData,
+                backgroundColor: 'rgba(15, 118, 110, 0.65)',
+                borderColor: '#0f766e',
+                borderWidth: 2,
+                borderRadius: 4
+            }], 'bar');
+        }
+
+        function renderWeeklyView(unitFilter, month) {
+            const m1S = parseInt(mInputs.m1.start.value) || 1, m1E = parseInt(mInputs.m1.end.value) || 7;
+            const m2S = parseInt(mInputs.m2.start.value) || 8, m2E = parseInt(mInputs.m2.end.value) || 14;
+            const m3S = parseInt(mInputs.m3.start.value) || 15, m3E = parseInt(mInputs.m3.end.value) || 21;
+            const m4S = parseInt(mInputs.m4.start.value) || 22, m4E = parseInt(mInputs.m4.end.value) || 31;
+
+            const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
+
+            let summaryWeekly = unitsToRender.map(u => {
+                const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
+                const m1Val = rows.filter(r => r.hari >= m1S && r.hari <= m1E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const m2Val = rows.filter(r => r.hari >= m2S && r.hari <= m2E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const m3Val = rows.filter(r => r.hari >= m3S && r.hari <= m3E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const m4Val = rows.filter(r => r.hari >= m4S && r.hari <= m4E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const totalLm = m1Val + m2Val + m3Val + m4Val;
+
+                return {
+                    unit: u,
+                    targetBulan: targetMap[u]?.tBulan || 0,
+                    m1: m1Val,
+                    m2: m2Val,
+                    m3: m3Val,
+                    m4: m4Val,
+                    totalLm: totalLm
+                };
+            });
+
+            const grandTarget = summaryWeekly.reduce((sum, item) => sum + item.targetBulan, 0);
+            const grandRealisasi = summaryWeekly.reduce((sum, item) => sum + item.totalLm, 0);
+            const gap = grandTarget - grandRealisasi;
+            const pct = grandTarget > 0 ? ((grandRealisasi / grandTarget) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-target').innerText = grandTarget.toLocaleString('id-ID');
+            document.getElementById('kpi-realisasi').innerText = grandRealisasi.toLocaleString('id-ID');
+            document.getElementById('kpi-gap').innerText = gap > 0 ? gap.toLocaleString('id-ID') : "0 (TERCAPAI)";
+            document.getElementById('kpi-percentage').innerText = pct + "%";
+
+            const thead = document.getElementById('table-head');
+            thead.innerHTML = `
+                <tr>
+                    <th class="px-4 py-3">UNIT / ULP</th>
+                    <th class="px-4 py-3 text-right">TARGET BULAN</th>
+                    <th class="px-4 py-3 text-right bg-teal-50 text-teal-900 border-x">M1 (${m1S}-${m1E})</th>
+                    <th class="px-4 py-3 text-right bg-teal-50 text-teal-900 border-r">M2 (${m2S}-${m2E})</th>
+                    <th class="px-4 py-3 text-right bg-teal-50 text-teal-900 border-r">M3 (${m3S}-${m3E})</th>
+                    <th class="px-4 py-3 text-right bg-teal-50 text-teal-900 border-r">M4 (${m4S}-${m4E})</th>
+                    <th class="px-4 py-3 text-right bg-teal-100 text-teal-950 font-extrabold">TOTAL LM REALISASI</th>
+                    <th class="px-4 py-3 text-center">% PENCAPAIAN</th>
+                </tr>
+            `;
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = summaryWeekly.map(item => {
+                const itemPct = item.targetBulan > 0 ? ((item.totalLm / item.targetBulan) * 100).toFixed(1) : 0;
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-4 py-3 font-bold text-slate-800">${item.unit}</td>
+                        <td class="px-4 py-3 text-right font-medium">${item.targetBulan.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-semibold border-x text-slate-700">${item.m1.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-semibold border-r text-slate-700">${item.m2.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-semibold border-r text-slate-700">${item.m3.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-semibold border-r text-slate-700">${item.m4.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-black text-teal-700 bg-teal-50/50">${item.totalLm.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="inline-block px-2.5 py-1 text-xs font-extrabold rounded-full ${itemPct >= 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${itemPct}%
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (unitFilter === "ALL") {
+                const totM1 = summaryWeekly.reduce((s, i) => s + i.m1, 0);
+                const totM2 = summaryWeekly.reduce((s, i) => s + i.m2, 0);
+                const totM3 = summaryWeekly.reduce((s, i) => s + i.m3, 0);
+                const totM4 = summaryWeekly.reduce((s, i) => s + i.m4, 0);
+
+                tbody.innerHTML += `
+                    <tr class="bg-slate-200 font-extrabold text-slate-900 border-t-2 border-slate-300">
+                        <td class="px-4 py-3.5">TOTAL UP3 PAREPARE</td>
+                        <td class="px-4 py-3.5 text-right">${grandTarget.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3.5 text-right border-x">${totM1.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3.5 text-right border-r">${totM2.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3.5 text-right border-r">${totM3.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3.5 text-right border-r">${totM4.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3.5 text-right text-teal-800 bg-teal-100">${grandRealisasi.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3.5 text-center text-teal-900 font-black">${pct}%</td>
+                    </tr>
+                `;
+            }
+
+            const labels = ['Minggu 1 (M1)', 'Minggu 2 (M2)', 'Minggu 3 (M3)', 'Minggu 4 (M4)'];
+            const totM1 = summaryWeekly.reduce((s, i) => s + i.m1, 0);
+            const totM2 = summaryWeekly.reduce((s, i) => s + i.m2, 0);
+            const totM3 = summaryWeekly.reduce((s, i) => s + i.m3, 0);
+            const totM4 = summaryWeekly.reduce((s, i) => s + i.m4, 0);
+
+            updateChart(labels, [{
+                label: 'Total Realisasi LM Mingguan (kWh)',
+                data: [totM1, totM2, totM3, totM4],
+                backgroundColor: [
+                    'rgba(13, 148, 136, 0.7)',
+                    'rgba(20, 184, 166, 0.7)',
+                    'rgba(45, 212, 191, 0.7)',
+                    'rgba(99, 102, 241, 0.7)'
+                ],
+                borderColor: '#0f766e',
+                borderWidth: 1.5,
+                borderRadius: 6
+            }], 'bar');
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('p2tlChart').getContext('2d');
+            p2tlChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('id-ID') + ' kWh';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(labels, datasets, type = 'bar') {
+            if (!p2tlChartInstance) return;
+            p2tlChartInstance.config.type = type;
+            p2tlChartInstance.data.labels = labels;
+            p2tlChartInstance.data.datasets = datasets;
+            p2tlChartInstance.update();
+        }
+
+        function exportCSV() {
+            const table = document.querySelector("table");
+            let csv = [];
+            const rows = table.querySelectorAll("tr");
+            
+            for (let i = 0; i < rows.length; i++) {
+                let row = [], cols = rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) {
+                    let cleanText = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ").trim();
+                    cleanText = cleanText.replace(/"/g, '""');
+                    row.push('"' + cleanText + '"');
+                }
+                csv.push(row.join(","));
+            }
+
+            const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+            const downloadLink = document.createElement("a");
+            downloadLink.download = `Laporan_P2TL_${currentMode.toUpperCase()}_2026.csv`;
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    </script>
+</body>
+</html>
