@@ -375,10 +375,10 @@ function processAndRenderData(data) {
             bulan: monthVal,
             hari: dayVal,
             unit: unitName,
-            target2026: targetMap[unitName]?.t2026 || parseFloat(item["TARGET 2026"] || 0),
-            targetBulan: targetMap[unitName]?.tBulan || parseFloat(item["TARGET BULAN"] || 0),
-            targetMinggu: targetMap[unitName]?.tMinggu || parseFloat(item["TARGET MINGGU"] || 0),
-            targetHari: targetMap[unitName]?.tHari || parseFloat(item["TARGET HARI"] || 0),
+            target2026: parseFloat(item["TARGET 2026"] || item["TARGET_2026"] || targetMap[unitName]?.t2026 || 0),
+	    targetBulan: parseFloat(item["TARGET BULAN"] || item["TARGET_BULAN"] || targetMap[unitName]?.tBulan || 0),
+	    targetMinggu: parseFloat(item["TARGET MINGGU"] || item["TARGET_MINGGU"] || targetMap[unitName]?.tMinggu || 0),
+	    targetHari: parseFloat(item["TARGET HARI"] || item["TARGET_HARI"] || targetMap[unitName]?.tHari || 0),
             kwhRealisasi: isNaN(kwhVal) ? 0 : kwhVal
         };
     });
