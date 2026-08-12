@@ -35,9 +35,9 @@
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="fetchDataFromAPI(true)" class="bg-teal-800 hover:bg-teal-900 text-teal-100 px-3 py-1.5 rounded-lg text-xs font-semibold border border-teal-600 transition flex items-center space-x-1">
-    <i class="fa-solid fa-rotate" id="refresh-icon"></i>
-    <span>Refresh Data</span>
-</button>
+                    <i class="fa-solid fa-rotate" id="refresh-icon"></i>
+                    <span>Refresh Data</span>
+                </button>
                 <span id="status-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-800 text-teal-100 border border-teal-600">
                     <span class="w-2 h-2 mr-1.5 bg-amber-400 rounded-full animate-pulse"></span> Connecting...
                 </span>
@@ -49,14 +49,18 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         <!-- Mode Selector Tabs -->
-        <div class="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 flex space-x-2">
+        <div class="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             <button id="tab-daily" onclick="switchMode('daily')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm">
                 <i class="fa-regular fa-calendar-days"></i>
-                <span>Laporan Filter Harian / Bulanan</span>
+                <span>Filter Harian / Bulanan</span>
+            </button>
+            <button id="tab-range" onclick="switchMode('range')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-calendar-week"></i>
+                <span>Range Bulan (Kumulatif)</span>
             </button>
             <button id="tab-weekly" onclick="switchMode('weekly')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Laporan Realisasi LM Mingguan (M1 - M4)</span>
+                <span>Realisasi LM Mingguan (M1-M4)</span>
             </button>
         </div>
 
@@ -67,7 +71,7 @@
                 <span>Parameter Filter Data</span>
             </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Dropdown Unit -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">PILIH UNIT / ULP</label>
@@ -83,8 +87,8 @@
                     </select>
                 </div>
 
-                <!-- Dropdown Bulan (Januari - Desember) -->
-                <div>
+                <!-- Dropdown Bulan Single (Mode Daily) -->
+                <div id="container-single-month">
                     <label class="block text-xs font-semibold text-slate-600 mb-1">PILIH BULAN</label>
                     <select id="filter-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
                         <option value="1">JANUARI 2026</option>
@@ -95,6 +99,44 @@
                         <option value="6">JUNI 2026</option>
                         <option value="7">JULI 2026</option>
                         <option value="8">AGUSTUS 2026</option>
+                        <option value="9">SEPTEMBER 2026</option>
+                        <option value="10">OKTOBER 2026</option>
+                        <option value="11">NOVEMBER 2026</option>
+                        <option value="12">DESEMBER 2026</option>
+                    </select>
+                </div>
+
+                <!-- Range Bulan Start (Mode Range) -->
+                <div id="container-start-month" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">DARI BULAN</label>
+                    <select id="filter-month-start" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
+                        <option value="1">JANUARI 2026</option>
+                        <option value="2">FEBRUARI 2026</option>
+                        <option value="3">MARET 2026</option>
+                        <option value="4">APRIL 2026</option>
+                        <option value="5">MEI 2026</option>
+                        <option value="6">JUNI 2026</option>
+                        <option value="7">JULI 2026</option>
+                        <option value="8">AGUSTUS 2026</option>
+                        <option value="9">SEPTEMBER 2026</option>
+                        <option value="10">OKTOBER 2026</option>
+                        <option value="11">NOVEMBER 2026</option>
+                        <option value="12">DESEMBER 2026</option>
+                    </select>
+                </div>
+
+                <!-- Range Bulan End (Mode Range) -->
+                <div id="container-end-month" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">SAMPAI BULAN</label>
+                    <select id="filter-month-end" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
+                        <option value="1">JANUARI 2026</option>
+                        <option value="2">FEBRUARI 2026</option>
+                        <option value="3">MARET 2026</option>
+                        <option value="4">APRIL 2026</option>
+                        <option value="5">MEI 2026</option>
+                        <option value="6">JUNI 2026</option>
+                        <option value="7">JULI 2026</option>
+                        <option value="8" selected>AGUSTUS 2026</option>
                         <option value="9">SEPTEMBER 2026</option>
                         <option value="10">OKTOBER 2026</option>
                         <option value="11">NOVEMBER 2026</option>
@@ -164,7 +206,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Bulan Ini</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="kpi-target-label">Target Kumulatif</p>
                     <h3 id="kpi-target" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
                     <p class="text-xs text-slate-500 mt-0.5">kWh P2TL Target</p>
                 </div>
@@ -261,6 +303,7 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6n9R5LqAhoLRgCzmC-O79B1hUWsVL2kq2joLHTbyysgBGs3iYPkxb0YRVW2bAsdDl3Q/exec";
 
         const unitsList = ["MATTIROTASI", "BARRU", "RAPPANG", "TANRU TEDONG", "PANGSID", "SOPPENG", "PAJALESANG"];
+        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         
         let targetMap = {
             "MATTIROTASI": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 },
@@ -278,7 +321,13 @@
 
         const filterUnitEl = document.getElementById('filter-unit');
         const filterMonthEl = document.getElementById('filter-month');
+        const filterMonthStartEl = document.getElementById('filter-month-start');
+        const filterMonthEndEl = document.getElementById('filter-month-end');
         const filterDateEl = document.getElementById('filter-date');
+        
+        const containerSingleMonth = document.getElementById('container-single-month');
+        const containerStartMonth = document.getElementById('container-start-month');
+        const containerEndMonth = document.getElementById('container-end-month');
         const containerWeeklyRanges = document.getElementById('container-weekly-ranges');
         const containerFilterDate = document.getElementById('container-filter-date');
         const statusBadge = document.getElementById('status-badge');
@@ -294,6 +343,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             const currentMonthIndex = new Date().getMonth() + 1;
             filterMonthEl.value = currentMonthIndex <= 12 ? currentMonthIndex : 1;
+            filterMonthEndEl.value = currentMonthIndex <= 12 ? currentMonthIndex : 8;
             
             populateDaysDropdown();
             setupEventListeners();
@@ -384,16 +434,12 @@
             renderDashboard();
         }
 
-        // Fungsi memperbarui targetMap secara dinamis berdasarkan bulan yang dipilih di dropdown
         function updateTargetMapFromSelectedMonth() {
             const selectedMonth = parseInt(filterMonthEl.value);
-            
-            // Reset targetMap
             unitsList.forEach(u => {
                 targetMap[u] = { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 };
             });
 
-            // Ambil baris pertama dari Google Sheets untuk bulan yang dipilih per unit
             dbP2TL.forEach(row => {
                 if (row.bulan === selectedMonth && targetMap[row.unit]) {
                     if (targetMap[row.unit].tBulan === 0 && row.targetBulan > 0) {
@@ -404,6 +450,13 @@
                     }
                 }
             });
+        }
+
+        // Ambil target per bulan spesifik
+        function getTargetForUnitAndMonth(unitName, m) {
+            const match = dbP2TL.find(r => r.bulan === m && (unitName === "ALL" || r.unit === unitName) && r.targetBulan > 0);
+            if (match) return match.targetBulan;
+            return targetMap[unitName]?.tBulan || 0;
         }
 
         function populateDaysDropdown() {
@@ -423,6 +476,8 @@
                 updateTargetMapFromSelectedMonth();
                 renderDashboard();
             });
+            filterMonthStartEl.addEventListener('change', renderDashboard);
+            filterMonthEndEl.addEventListener('change', renderDashboard);
             filterDateEl.addEventListener('change', renderDashboard);
 
             Object.values(mInputs).forEach(m => {
@@ -434,20 +489,40 @@
         function switchMode(mode) {
             currentMode = mode;
             const tabDaily = document.getElementById('tab-daily');
+            const tabRange = document.getElementById('tab-range');
             const tabWeekly = document.getElementById('tab-weekly');
+
+            // Reset class button
+            [tabDaily, tabRange, tabWeekly].forEach(tab => {
+                tab.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100";
+            });
+
+            // Hide all filter containers
+            containerSingleMonth.classList.add('hidden');
+            containerStartMonth.classList.add('hidden');
+            containerEndMonth.classList.add('hidden');
+            containerFilterDate.classList.add('hidden');
+            containerWeeklyRanges.classList.add('hidden');
 
             if (mode === 'daily') {
                 tabDaily.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
-                tabWeekly.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100";
+                containerSingleMonth.classList.remove('hidden');
                 containerFilterDate.classList.remove('hidden');
-                containerWeeklyRanges.classList.add('hidden');
+                document.getElementById('kpi-target-label').innerText = "Target Bulan Ini";
                 document.getElementById('chart-title').innerText = "Grafik Tren Realisasi kWh Harian";
                 document.getElementById('table-title').innerText = "Tabel Rincian Pencapaian Realisasi Harian";
+            } else if (mode === 'range') {
+                tabRange.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                containerStartMonth.classList.remove('hidden');
+                containerEndMonth.classList.remove('hidden');
+                document.getElementById('kpi-target-label').innerText = "Target Range Bulan";
+                document.getElementById('chart-title').innerText = "Grafik Komparasi Target vs Realisasi Kumulatif Per Bulan";
+                document.getElementById('table-title').innerText = "Tabel Rekapitulasi Kumulatif Range Bulan";
             } else {
                 tabWeekly.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
-                tabDaily.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100";
-                containerFilterDate.classList.add('hidden');
+                containerSingleMonth.classList.remove('hidden');
                 containerWeeklyRanges.classList.remove('hidden');
+                document.getElementById('kpi-target-label').innerText = "Target Bulan Ini";
                 document.getElementById('chart-title').innerText = "Grafik Komparasi Realisasi LM Mingguan (M1 - M4)";
                 document.getElementById('table-title').innerText = "Tabel Matriks Realisasi LM Mingguan";
             }
@@ -468,6 +543,8 @@
 
             if (currentMode === 'daily') {
                 renderDailyView(selectedUnit, selectedMonth);
+            } else if (currentMode === 'range') {
+                renderRangeView(selectedUnit);
             } else {
                 renderWeeklyView(selectedUnit, selectedMonth);
             }
@@ -556,6 +633,132 @@
             }], 'bar');
         }
 
+        // RENDER MODE RANGE BULAN
+        function renderRangeView(unit) {
+            let startM = parseInt(filterMonthStartEl.value);
+            let endM = parseInt(filterMonthEndEl.value);
+
+            // Koreksi jika bulan awal > bulan akhir
+            if (startM > endM) {
+                const temp = startM;
+                startM = endM;
+                endM = temp;
+            }
+
+            let monthList = [];
+            for (let m = startM; m <= endM; m++) {
+                monthList.push(m);
+            }
+
+            let monthlySummary = monthList.map(m => {
+                let rows = dbP2TL.filter(r => r.bulan === m);
+                if (unit !== "ALL") {
+                    rows = rows.filter(r => r.unit === unit);
+                }
+
+                let targetVal = 0;
+                if (unit === "ALL") {
+                    unitsList.forEach(u => {
+                        targetVal += getTargetForUnitAndMonth(u, m);
+                    });
+                } else {
+                    targetVal = getTargetForUnitAndMonth(unit, m);
+                }
+
+                const realisasiVal = rows.reduce((sum, r) => sum + r.kwhRealisasi, 0);
+
+                return {
+                    bulanIndex: m,
+                    bulanName: monthNames[m - 1],
+                    target: targetVal,
+                    realisasi: realisasiVal
+                };
+            });
+
+            const grandTarget = monthlySummary.reduce((s, item) => s + item.target, 0);
+            const grandRealisasi = monthlySummary.reduce((s, item) => s + item.realisasi, 0);
+            const gap = grandTarget - grandRealisasi;
+            const pct = grandTarget > 0 ? ((grandRealisasi / grandTarget) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-target').innerText = grandTarget.toLocaleString('id-ID');
+            document.getElementById('kpi-realisasi').innerText = grandRealisasi.toLocaleString('id-ID');
+            document.getElementById('kpi-gap').innerText = gap > 0 ? gap.toLocaleString('id-ID') : "0 (TERCAPAI)";
+            document.getElementById('kpi-percentage').innerText = pct + "%";
+
+            // Update Tabel
+            const thead = document.getElementById('table-head');
+            thead.innerHTML = `
+                <tr>
+                    <th class="px-4 py-3">BULAN</th>
+                    <th class="px-4 py-3">UNIT / ULP</th>
+                    <th class="px-4 py-3 text-right">TARGET BULANAN</th>
+                    <th class="px-4 py-3 text-right">REALISASI KWH</th>
+                    <th class="px-4 py-3 text-right">GAP / DEFISIT</th>
+                    <th class="px-4 py-3 text-center">% PENCAPAIAN</th>
+                </tr>
+            `;
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = monthlySummary.map(item => {
+                const itemGap = item.target - item.realisasi;
+                const itemPct = item.target > 0 ? ((item.realisasi / item.target) * 100).toFixed(1) : 0;
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-4 py-3 font-bold text-slate-800">${item.bulanName} 2026</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-block px-2 py-0.5 text-xs font-bold bg-slate-100 text-slate-700 rounded">${unit === "ALL" ? "TOTAL UP3" : unit}</span>
+                        </td>
+                        <td class="px-4 py-3 text-right font-medium">${item.target.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-black text-teal-700">${item.realisasi.toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-3 text-right font-medium ${itemGap > 0 ? 'text-amber-600' : 'text-emerald-600'}">
+                            ${itemGap > 0 ? itemGap.toLocaleString('id-ID') : '0 (Tercapai)'}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="inline-block px-2.5 py-1 text-xs font-extrabold rounded-full ${itemPct >= 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${itemPct}%
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Baris Total Kumulatif
+            tbody.innerHTML += `
+                <tr class="bg-slate-200 font-extrabold text-slate-900 border-t-2 border-slate-300">
+                    <td class="px-4 py-3.5">TOTAL RANGE (${monthlySummary[0].bulanName} - ${monthlySummary[monthlySummary.length - 1].bulanName})</td>
+                    <td class="px-4 py-3.5">${unit === "ALL" ? "TOTAL UP3" : unit}</td>
+                    <td class="px-4 py-3.5 text-right">${grandTarget.toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3.5 text-right text-teal-800 bg-teal-100">${grandRealisasi.toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3.5 text-right">${gap > 0 ? gap.toLocaleString('id-ID') : '0'}</td>
+                    <td class="px-4 py-3.5 text-center text-teal-900 font-black">${pct}%</td>
+                </tr>
+            `;
+
+            // Update Chart: Sumbu X = Bulan, Sumbu Y = kWh
+            const labels = monthlySummary.map(m => m.bulanName);
+            const targetData = monthlySummary.map(m => m.target);
+            const realisasiData = monthlySummary.map(m => m.realisasi);
+
+            updateChart(labels, [
+                {
+                    label: 'Target kWh',
+                    data: targetData,
+                    backgroundColor: 'rgba(148, 163, 184, 0.6)',
+                    borderColor: '#64748b',
+                    borderWidth: 1.5,
+                    borderRadius: 4
+                },
+                {
+                    label: 'Realisasi kWh Kumulatif',
+                    data: realisasiData,
+                    backgroundColor: 'rgba(13, 148, 136, 0.8)',
+                    borderColor: '#0f766e',
+                    borderWidth: 1.5,
+                    borderRadius: 4
+                }
+            ], 'bar');
+        }
+
         function renderWeeklyView(unitFilter, month) {
             const m1S = parseInt(mInputs.m1.start.value) || 1, m1E = parseInt(mInputs.m1.end.value) || 7;
             const m2S = parseInt(mInputs.m2.start.value) || 8, m2E = parseInt(mInputs.m2.end.value) || 14;
@@ -574,7 +777,7 @@
 
                 return {
                     unit: u,
-                    targetBulan: targetMap[u]?.tBulan || 0,
+                    targetBulan: getTargetForUnitAndMonth(u, month),
                     m1: m1Val,
                     m2: m2Val,
                     m3: m3Val,
