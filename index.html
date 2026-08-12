@@ -261,14 +261,15 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6n9R5LqAhoLRgCzmC-O79B1hUWsVL2kq2joLHTbyysgBGs3iYPkxb0YRVW2bAsdDl3Q/exec";
 
         const unitsList = ["MATTIROTASI", "BARRU", "RAPPANG", "TANRU TEDONG", "PANGSID", "SOPPENG", "PAJALESANG"];
-        const targetMap = {
-        "MATTIROTASI": { t2026: 79730, tBulan: 6644, tMinggu: 1661, tHari: 256 },
-    	"BARRU": { t2026: 63252, tBulan: 5271, tMinggu: 1318, tHari: 203 },
-   	"RAPPANG": { t2026: 247638, tBulan: 20637, tMinggu: 5159, tHari: 794 },
-    	"TANRU TEDONG": { t2026: 578830, tBulan: 48236, tMinggu: 12059, tHari: 1855 },
-    	"PANGSID": { t2026: 203134, tBulan: 16927, tMinggu: 4232, tHari: 651 },
-    	"SOPPENG": { t2026: 449616, tBulan: 37468, tMinggu: 9367, tHari: 1441 },
-    	"PAJALESANG": { t2026: 803312, tBulan: 66943, tMinggu: 16736, tHari: 2575 }
+        
+        let targetMap = {
+            "MATTIROTASI": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 },
+            "BARRU": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 },
+            "RAPPANG": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 },
+            "TANRU TEDONG": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 },
+            "PANGSID": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 },
+            "SOPPENG": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 },
+            "PAJALESANG": { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 }
         };
 
         let dbP2TL = [];
@@ -291,7 +292,6 @@
         };
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Set default bulan sesuai bulan berjalan
             const currentMonthIndex = new Date().getMonth() + 1;
             filterMonthEl.value = currentMonthIndex <= 12 ? currentMonthIndex : 1;
             
@@ -301,92 +301,112 @@
             fetchDataFromAPI();
         });
 
-async function fetchDataFromAPI(forceRefresh = false) {
-    refreshIcon.classList.add('fa-spin');
-    statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-amber-400 rounded-full animate-pulse"></span> Syncing...`;
-    statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-800 text-teal-100 border border-teal-600";
+        async function fetchDataFromAPI(forceRefresh = false) {
+            refreshIcon.classList.add('fa-spin');
+            statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-amber-400 rounded-full animate-pulse"></span> Syncing...`;
+            statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-800 text-teal-100 border border-teal-600";
 
-    const CACHE_KEY = 'p2tl_dashboard_data';
-    const CACHE_TIME_KEY = 'p2tl_dashboard_time';
-    const CACHE_DURATION = 5 * 60 * 1000; // Cache berlaku 5 menit
+            const CACHE_KEY = 'p2tl_dashboard_data';
+            const CACHE_TIME_KEY = 'p2tl_dashboard_time';
+            const CACHE_DURATION = 5 * 60 * 1000;
 
-    const cachedData = localStorage.getItem(CACHE_KEY);
-    const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-    const now = new Date().getTime();
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+            const now = new Date().getTime();
 
-    // Jika tidak paksa refresh & cache masih valid, pakai data lokal
-    if (!forceRefresh && cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
-        processAndRenderData(JSON.parse(cachedData));
-        return;
-    }
+            if (!forceRefresh && cachedData && cachedTime && (now - cachedTime < CACHE_DURATION)) {
+                processAndRenderData(JSON.parse(cachedData));
+                return;
+            }
 
-    // Jika cache kadaluarsa/tidak ada, baru panggil Google Apps Script
-    try {
-        const response = await fetch(WEB_APP_URL, { method: 'GET', redirect: 'follow' });
-        if (!response.ok) throw new Error("Gagal terhubung ke server");
+            try {
+                const response = await fetch(WEB_APP_URL, { method: 'GET', redirect: 'follow' });
+                if (!response.ok) throw new Error("Gagal terhubung ke server");
 
-        const data = await response.json();
-        if (data.error) throw new Error(data.error);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
 
-        // Simpan data terbaru ke LocalStorage
-        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        localStorage.setItem(CACHE_TIME_KEY, now.toString());
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIME_KEY, now.toString());
 
-        processAndRenderData(data);
-    } catch (err) {
-        console.error("Error fetching data:", err);
-        
-        // Jika gagal koneksi tapi ada data cache lama, tampilkan data cache tersebut
-        if (cachedData) {
-            processAndRenderData(JSON.parse(cachedData));
-            statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-amber-500 rounded-full"></span> Offline / Cached Mode`;
-            statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-900 text-amber-100 border border-amber-700";
-        } else {
-            statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-rose-500 rounded-full"></span> Connection Failed`;
-            statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-900 text-rose-100 border border-rose-700";
-        }
-    } finally {
-        refreshIcon.classList.remove('fa-spin');
-    }
-}
-
-// Pisahkan logika parsing data ke fungsi tersendiri
-function processAndRenderData(data) {
-    dbP2TL = data.map((item, index) => {
-        const rawTanggal = String(item["TANGGAL"] || item["tanggal"] || "").trim();
-        let monthVal = 1, dayVal = 1, formattedDate = "";
-
-        if (rawTanggal) {
-            const dateParts = rawTanggal.split('T')[0].split('-');
-            if (dateParts.length === 3) {
-                monthVal = parseInt(dateParts[1], 10);
-                dayVal = parseInt(dateParts[2], 10);
-                formattedDate = `${dateParts[0]}-${String(monthVal).padStart(2, '0')}-${String(dayVal).padStart(2, '0')}`;
+                processAndRenderData(data);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                if (cachedData) {
+                    processAndRenderData(JSON.parse(cachedData));
+                    statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-amber-500 rounded-full"></span> Offline / Cached Mode`;
+                    statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-900 text-amber-100 border border-amber-700";
+                } else {
+                    statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-rose-500 rounded-full"></span> Connection Failed`;
+                    statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-900 text-rose-100 border border-rose-700";
+                }
+            } finally {
+                refreshIcon.classList.remove('fa-spin');
             }
         }
 
-        const unitName = String(item["UNIT"] || item["unit"] || "").toUpperCase().trim();
-        const rawRealisasi = item["REALISASI"] !== undefined ? item["REALISASI"] : (item["realisasi"] || 0);
-        const kwhVal = parseFloat(rawRealisasi);
+        function processAndRenderData(data) {
+            dbP2TL = data.map((item, index) => {
+                const rawTanggal = String(item["TANGGAL"] || item["tanggal"] || "").trim();
+                let monthVal = 1, dayVal = 1, formattedDate = "";
 
-        return {
-            id: item["ID"] || item["id"] || (index + 1),
-            tanggal: formattedDate || rawTanggal,
-            bulan: monthVal,
-            hari: dayVal,
-            unit: unitName,
-            target2026: parseFloat(item["TARGET 2026"] || item["TARGET_2026"] || targetMap[unitName]?.t2026 || 0),
-	    targetBulan: parseFloat(item["TARGET BULAN"] || item["TARGET_BULAN"] || targetMap[unitName]?.tBulan || 0),
-	    targetMinggu: parseFloat(item["TARGET MINGGU"] || item["TARGET_MINGGU"] || targetMap[unitName]?.tMinggu || 0),
-	    targetHari: parseFloat(item["TARGET HARI"] || item["TARGET_HARI"] || targetMap[unitName]?.tHari || 0),
-            kwhRealisasi: isNaN(kwhVal) ? 0 : kwhVal
-        };
-    });
+                if (rawTanggal) {
+                    const dateParts = rawTanggal.split('T')[0].split('-');
+                    if (dateParts.length === 3) {
+                        monthVal = parseInt(dateParts[1], 10);
+                        dayVal = parseInt(dateParts[2], 10);
+                        formattedDate = `${dateParts[0]}-${String(monthVal).padStart(2, '0')}-${String(dayVal).padStart(2, '0')}`;
+                    }
+                }
 
-    statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> DB Connected`;
-    statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-900 text-emerald-100 border border-emerald-700";
-    renderDashboard();
-}        function populateDaysDropdown() {
+                const unitName = String(item["UNIT"] || item["unit"] || "").toUpperCase().trim();
+                const rawRealisasi = item["REALISASI"] !== undefined ? item["REALISASI"] : (item["realisasi"] || 0);
+                const kwhVal = parseFloat(rawRealisasi);
+
+                return {
+                    id: item["ID"] || item["id"] || (index + 1),
+                    tanggal: formattedDate || rawTanggal,
+                    bulan: monthVal,
+                    hari: dayVal,
+                    unit: unitName,
+                    target2026: parseFloat(item["TARGET 2026"] || item["TARGET_2026"] || 0),
+                    targetBulan: parseFloat(item["TARGET BULAN"] || item["TARGET_BULAN"] || 0),
+                    targetMinggu: parseFloat(item["TARGET MINGGU"] || item["TARGET_MINGGU"] || 0),
+                    targetHari: parseFloat(item["TARGET HARI"] || item["TARGET_HARI"] || 0),
+                    kwhRealisasi: isNaN(kwhVal) ? 0 : kwhVal
+                };
+            });
+
+            statusBadge.innerHTML = `<span class="w-2 h-2 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> DB Connected`;
+            statusBadge.className = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-900 text-emerald-100 border border-emerald-700";
+            
+            updateTargetMapFromSelectedMonth();
+            renderDashboard();
+        }
+
+        // Fungsi memperbarui targetMap secara dinamis berdasarkan bulan yang dipilih di dropdown
+        function updateTargetMapFromSelectedMonth() {
+            const selectedMonth = parseInt(filterMonthEl.value);
+            
+            // Reset targetMap
+            unitsList.forEach(u => {
+                targetMap[u] = { t2026: 0, tBulan: 0, tMinggu: 0, tHari: 0 };
+            });
+
+            // Ambil baris pertama dari Google Sheets untuk bulan yang dipilih per unit
+            dbP2TL.forEach(row => {
+                if (row.bulan === selectedMonth && targetMap[row.unit]) {
+                    if (targetMap[row.unit].tBulan === 0 && row.targetBulan > 0) {
+                        targetMap[row.unit].t2026 = row.target2026;
+                        targetMap[row.unit].tBulan = row.targetBulan;
+                        targetMap[row.unit].tMinggu = row.targetMinggu;
+                        targetMap[row.unit].tHari = row.targetHari;
+                    }
+                }
+            });
+        }
+
+        function populateDaysDropdown() {
             const month = parseInt(filterMonthEl.value);
             const daysCount = new Date(2026, month, 0).getDate();
             filterDateEl.innerHTML = `<option value="ALL">SEMUA TANGGAL (1 BULAN)</option>`;
@@ -400,6 +420,7 @@ function processAndRenderData(data) {
             filterUnitEl.addEventListener('change', renderDashboard);
             filterMonthEl.addEventListener('change', () => {
                 populateDaysDropdown();
+                updateTargetMapFromSelectedMonth();
                 renderDashboard();
             });
             filterDateEl.addEventListener('change', renderDashboard);
