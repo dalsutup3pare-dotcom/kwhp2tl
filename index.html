@@ -643,7 +643,7 @@
             }], 'bar');
         }
 
-        <!-- TAB MODE BARU: MATRIKS BULANAN SESUAI GAMBAR SPREADSHEET -->
+        /* TAB MODE: MATRIKS BULANAN SESUAI GAMBAR SPREADSHEET */
         function renderMatrixView(unitFilter, month) {
             const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
             const daysInMonth = new Date(2026, month, 0).getDate();
@@ -955,8 +955,8 @@
             let summaryWeekly = unitsToRender.map(u => {
                 const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
                 const targetData = getTargetForUnitAndMonth(u, month);
-		        const targetBulan = targetData.tBulan;
-		        const targetMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetBulan / 4);
+                const targetBulan = targetData.tBulan;
+                const targetMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetBulan / 4);
 
                 const m1Val = rows.filter(r => r.hari >= m1S && r.hari <= m1E).reduce((s, r) => s + r.kwhRealisasi, 0);
                 const m2Val = rows.filter(r => r.hari >= m2S && r.hari <= m2E).reduce((s, r) => s + r.kwhRealisasi, 0);
@@ -988,28 +988,40 @@
                 };
             });
 
+// 1. Akumulasi dasar realisasi & target UP3
             const totalUP3 = summaryWeekly.reduce((acc, item) => {
                 acc.targetBulan += item.targetBulan;
                 acc.targetMinggu += item.targetMinggu;
-                acc.m1 += item.m1; acc.gapM1 += item.gapM1; acc.carryM1 += item.carryM1;
-                acc.m2 += item.m2; acc.gapM2 += item.gapM2; acc.carryM2 += item.carryM2;
-                acc.m3 += item.m3; acc.gapM3 += item.gapM3; acc.carryM3 += item.carryM3;
-                acc.m4 += item.m4; acc.gapM4 += item.gapM4; acc.carryM4 += item.carryM4;
+                acc.m1 += item.m1;
+                acc.m2 += item.m2;
+                acc.m3 += item.m3;
+                acc.m4 += item.m4;
                 acc.totalLm += item.totalLm;
                 return acc;
             }, {
                 targetBulan: 0, targetMinggu: 0,
-                m1: 0, gapM1: 0, carryM1: 0,
-                m2: 0, gapM2: 0, carryM2: 0,
-                m3: 0, gapM3: 0, carryM3: 0,
-                m4: 0, gapM4: 0, carryM4: 0,
+                m1: 0, m2: 0, m3: 0, m4: 0,
                 totalLm: 0
             });
+
+            // 2. Hitung Gap dan Gap Carry Total UP3 berdasarkan Target Mingguan UP3
+            totalUP3.gapM1 = Math.max(0, totalUP3.targetMinggu - totalUP3.m1);
+            totalUP3.carryM1 = totalUP3.gapM1;
+
+            totalUP3.gapM2 = Math.max(0, totalUP3.targetMinggu - totalUP3.m2);
+            totalUP3.carryM2 = Math.max(0, totalUP3.gapM2 + totalUP3.carryM1);
+
+            totalUP3.gapM3 = Math.max(0, totalUP3.targetMinggu - totalUP3.m3);
+            totalUP3.carryM3 = Math.max(0, totalUP3.gapM3 + totalUP3.carryM2);
+
+            totalUP3.gapM4 = Math.max(0, totalUP3.targetMinggu - totalUP3.m4);
+            totalUP3.carryM4 = Math.max(0, totalUP3.gapM4 + totalUP3.carryM3);
 
             const grandTarget = totalUP3.targetBulan;
             const grandRealisasi = totalUP3.totalLm;
             const gap = grandTarget - grandRealisasi;
             const pct = grandTarget > 0 ? ((grandRealisasi / grandTarget) * 100).toFixed(1) : 0;
+            const totalPct = pct; // Didefinisikan untuk digunakan pada totalRow
 
             document.getElementById('kpi-target').innerText = Math.round(grandTarget).toLocaleString('id-ID');
             document.getElementById('kpi-realisasi').innerText = Math.round(grandRealisasi).toLocaleString('id-ID');
@@ -1022,26 +1034,30 @@
                     <th class="px-3 py-3 text-left" rowspan="2">UNIT / ULP</th>
                     <th class="px-3 py-3 text-right" rowspan="2">TARGET BULAN</th>
                     <th class="px-3 py-3 text-right border-r" rowspan="2">TARGET MINGGU</th>
-                    <th class="px-3 py-2 text-center bg-teal-50 border-r" colspan="2">M1 (${m1S}-${m1E})</th>
-                    <th class="px-3 py-2 text-center bg-teal-100/60 border-r" colspan="3">M2 (${m2S}-${m2E})</th>
-                    <th class="px-3 py-2 text-center bg-teal-50 border-r" colspan="3">M3 (${m3S}-${m3E})</th>
-                    <th class="px-3 py-2 text-center bg-teal-100/60 border-r" colspan="3">M4 (${m4S}-${m4E})</th>
+                    <th class="px-3 py-2 text-center bg-teal-50 border-r" colspan="3">M1 (${m1S}-${m1E})</th>
+                    <th class="px-3 py-2 text-center bg-teal-100/60 border-r" colspan="4">M2 (${m2S}-${m2E})</th>
+                    <th class="px-3 py-2 text-center bg-teal-50 border-r" colspan="4">M3 (${m3S}-${m3E})</th>
+                    <th class="px-3 py-2 text-center bg-teal-100/60 border-r" colspan="4">M4 (${m4S}-${m4E})</th>
                     <th class="px-3 py-3 text-right bg-teal-200 text-teal-950 font-extrabold" rowspan="2">TOTAL REALISASI</th>
                     <th class="px-3 py-3 text-center" rowspan="2">% CAPAI</th>
                 </tr>
                 <tr class="text-xs">
                     <th class="px-2 py-1 text-right bg-teal-50">REAL</th>
+                    <th class="px-2 py-1 text-center bg-teal-50 font-bold">% M1</th>
                     <th class="px-2 py-1 text-right bg-teal-50 border-r">GAP M1</th>
                     
                     <th class="px-2 py-1 text-right bg-teal-100/60">REAL</th>
+                    <th class="px-2 py-1 text-center bg-teal-100/60 font-bold">% M2</th>
                     <th class="px-2 py-1 text-right bg-teal-100/60 text-slate-600">GAP M2</th>
                     <th class="px-2 py-1 text-right bg-teal-100/60 text-amber-800 border-r">GAP CARRY M2</th>
                     
                     <th class="px-2 py-1 text-right bg-teal-50">REAL</th>
+                    <th class="px-2 py-1 text-center bg-teal-50 font-bold">% M3</th>
                     <th class="px-2 py-1 text-right bg-teal-50 text-slate-600">GAP M3</th>
                     <th class="px-2 py-1 text-right bg-teal-50 text-amber-800 border-r">GAP CARRY M3</th>
                     
                     <th class="px-2 py-1 text-right bg-teal-100/60">REAL</th>
+                    <th class="px-2 py-1 text-center bg-teal-100/60 font-bold">% M4</th>
                     <th class="px-2 py-1 text-right bg-teal-100/60 text-slate-600">GAP M4</th>
                     <th class="px-2 py-1 text-right bg-teal-100/60 text-amber-800 border-r">GAP CARRY M4</th>
                 </tr>
@@ -1051,24 +1067,39 @@
             
             let htmlRows = summaryWeekly.map(item => {
                 const itemPct = item.targetBulan > 0 ? ((item.totalLm / item.targetBulan) * 100).toFixed(1) : 0;
+                
+                // Hitung persentase per minggu
+                const pctM1 = item.targetMinggu > 0 ? ((item.m1 / item.targetMinggu) * 100).toFixed(1) : 0;
+                const pctM2 = item.targetMinggu > 0 ? ((item.m2 / item.targetMinggu) * 100).toFixed(1) : 0;
+                const pctM3 = item.targetMinggu > 0 ? ((item.m3 / item.targetMinggu) * 100).toFixed(1) : 0;
+                const pctM4 = item.targetMinggu > 0 ? ((item.m4 / item.targetMinggu) * 100).toFixed(1) : 0;
+
                 return `
                     <tr class="hover:bg-slate-50 transition text-xs border-b border-slate-200">
                         <td class="px-3 py-2.5 font-bold text-slate-800">${item.unit}</td>
                         <td class="px-3 py-2.5 text-right font-medium">${Math.round(item.targetBulan).toLocaleString('id-ID')}</td>
                         <td class="px-3 py-2.5 text-right font-medium text-slate-600 border-r">${Math.round(item.targetMinggu).toLocaleString('id-ID')}</td>
                         
+                        <!-- M1 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m1).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-center font-bold ${pctM1 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM1}%</td>
                         <td class="px-2 py-2.5 text-right border-r ${item.gapM1 > 0 ? 'text-rose-600 font-medium' : 'text-emerald-600'}">${item.gapM1 > 0 ? Math.round(item.gapM1).toLocaleString('id-ID') : '0'}</td>
                         
+                        <!-- M2 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m2).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-center font-bold ${pctM2 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM2}%</td>
                         <td class="px-2 py-2.5 text-right ${item.gapM2 > 0 ? 'text-slate-600' : 'text-emerald-600'}">${item.gapM2 > 0 ? Math.round(item.gapM2).toLocaleString('id-ID') : '0'}</td>
                         <td class="px-2 py-2.5 text-right border-r font-bold text-amber-700 bg-amber-50/40">${item.carryM2 > 0 ? Math.round(item.carryM2).toLocaleString('id-ID') : '0'}</td>
                         
+                        <!-- M3 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m3).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-center font-bold ${pctM3 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM3}%</td>
                         <td class="px-2 py-2.5 text-right ${item.gapM3 > 0 ? 'text-slate-600' : 'text-emerald-600'}">${item.gapM3 > 0 ? Math.round(item.gapM3).toLocaleString('id-ID') : '0'}</td>
                         <td class="px-2 py-2.5 text-right border-r font-bold text-amber-700 bg-amber-50/40">${item.carryM3 > 0 ? Math.round(item.carryM3).toLocaleString('id-ID') : '0'}</td>
                         
+                        <!-- M4 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m4).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-center font-bold ${pctM4 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM4}%</td>
                         <td class="px-2 py-2.5 text-right ${item.gapM4 > 0 ? 'text-slate-600' : 'text-emerald-600'}">${item.gapM4 > 0 ? Math.round(item.gapM4).toLocaleString('id-ID') : '0'}</td>
                         <td class="px-2 py-2.5 text-right border-r font-bold text-amber-700 bg-amber-50/40">${item.carryM4 > 0 ? Math.round(item.carryM4).toLocaleString('id-ID') : '0'}</td>
                         
@@ -1082,7 +1113,11 @@
                 `;
             }).join('');
 
-            const totalPct = totalUP3.targetBulan > 0 ? ((totalUP3.totalLm / totalUP3.targetBulan) * 100).toFixed(1) : 0;
+            const totalPctM1 = totalUP3.targetMinggu > 0 ? ((totalUP3.m1 / totalUP3.targetMinggu) * 100).toFixed(1) : 0;
+            const totalPctM2 = totalUP3.targetMinggu > 0 ? ((totalUP3.m2 / totalUP3.targetMinggu) * 100).toFixed(1) : 0;
+            const totalPctM3 = totalUP3.targetMinggu > 0 ? ((totalUP3.m3 / totalUP3.targetMinggu) * 100).toFixed(1) : 0;
+            const totalPctM4 = totalUP3.targetMinggu > 0 ? ((totalUP3.m4 / totalUP3.targetMinggu) * 100).toFixed(1) : 0;
+
             const totalRow = `
                 <tr class="bg-slate-800 text-white font-bold text-xs border-t-2 border-slate-900">
                     <td class="px-3 py-3 uppercase tracking-wider">TOTAL UP3</td>
@@ -1090,17 +1125,21 @@
                     <td class="px-3 py-3 text-right border-r border-slate-700">${Math.round(totalUP3.targetMinggu).toLocaleString('id-ID')}</td>
                     
                     <td class="px-2 py-3 text-right text-teal-300">${Math.round(totalUP3.m1).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-center text-teal-300">${totalPctM1}%</td>
                     <td class="px-2 py-3 text-right border-r border-slate-700 text-rose-300">${totalUP3.gapM1 > 0 ? Math.round(totalUP3.gapM1).toLocaleString('id-ID') : '0'}</td>
                     
                     <td class="px-2 py-3 text-right text-teal-300">${Math.round(totalUP3.m2).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-center text-teal-300">${totalPctM2}%</td>
                     <td class="px-2 py-3 text-right text-slate-300">${totalUP3.gapM2 > 0 ? Math.round(totalUP3.gapM2).toLocaleString('id-ID') : '0'}</td>
                     <td class="px-2 py-3 text-right border-r border-slate-700 text-amber-300">${totalUP3.carryM2 > 0 ? Math.round(totalUP3.carryM2).toLocaleString('id-ID') : '0'}</td>
                     
                     <td class="px-2 py-3 text-right text-teal-300">${Math.round(totalUP3.m3).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-center text-teal-300">${totalPctM3}%</td>
                     <td class="px-2 py-3 text-right text-slate-300">${totalUP3.gapM3 > 0 ? Math.round(totalUP3.gapM3).toLocaleString('id-ID') : '0'}</td>
                     <td class="px-2 py-3 text-right border-r border-slate-700 text-amber-300">${totalUP3.carryM3 > 0 ? Math.round(totalUP3.carryM3).toLocaleString('id-ID') : '0'}</td>
                     
                     <td class="px-2 py-3 text-right text-teal-300">${Math.round(totalUP3.m4).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-center text-teal-300">${totalPctM4}%</td>
                     <td class="px-2 py-3 text-right text-slate-300">${totalUP3.gapM4 > 0 ? Math.round(totalUP3.gapM4).toLocaleString('id-ID') : '0'}</td>
                     <td class="px-2 py-3 text-right border-r border-slate-700 text-amber-300">${totalUP3.carryM4 > 0 ? Math.round(totalUP3.carryM4).toLocaleString('id-ID') : '0'}</td>
                     
