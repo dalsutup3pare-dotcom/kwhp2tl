@@ -945,83 +945,95 @@
         }
 
         function renderWeeklyView(unitFilter, month) {
-            const m1S = parseInt(mInputs.m1.start.value) || 1, m1E = parseInt(mInputs.m1.end.value) || 7;
-            const m2S = parseInt(mInputs.m2.start.value) || 8, m2E = parseInt(mInputs.m2.end.value) || 14;
-            const m3S = parseInt(mInputs.m3.start.value) || 15, m3E = parseInt(mInputs.m3.end.value) || 21;
-            const m4S = parseInt(mInputs.m4.start.value) || 22, m4E = parseInt(mInputs.m4.end.value) || 31;
+    const m1S = parseInt(mInputs.m1.start.value) || 1, m1E = parseInt(mInputs.m1.end.value) || 7;
+    const m2S = parseInt(mInputs.m2.start.value) || 8, m2E = parseInt(mInputs.m2.end.value) || 14;
+    const m3S = parseInt(mInputs.m3.start.value) || 15, m3E = parseInt(mInputs.m3.end.value) || 21;
+    const m4S = parseInt(mInputs.m4.start.value) || 22, m4E = parseInt(mInputs.m4.end.value) || 31;
 
-            const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
+    const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
 
-            let summaryWeekly = unitsToRender.map(u => {
-                const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
-                const targetData = getTargetForUnitAndMonth(u, month);
-                const targetBulan = targetData.tBulan;
-                const targetMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetBulan / 4);
+    let summaryWeekly = unitsToRender.map(u => {
+        const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
+        const targetData = getTargetForUnitAndMonth(u, month);
+        const targetBulan = targetData.tBulan;
+        const targetMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetBulan / 4);
 
-                const m1Val = rows.filter(r => r.hari >= m1S && r.hari <= m1E).reduce((s, r) => s + r.kwhRealisasi, 0);
-                const m2Val = rows.filter(r => r.hari >= m2S && r.hari <= m2E).reduce((s, r) => s + r.kwhRealisasi, 0);
-                const m3Val = rows.filter(r => r.hari >= m3S && r.hari <= m3E).reduce((s, r) => s + r.kwhRealisasi, 0);
-                const m4Val = rows.filter(r => r.hari >= m4S && r.hari <= m4E).reduce((s, r) => s + r.kwhRealisasi, 0);
+        const m1Val = rows.filter(r => r.hari >= m1S && r.hari <= m1E).reduce((s, r) => s + r.kwhRealisasi, 0);
+        const m2Val = rows.filter(r => r.hari >= m2S && r.hari <= m2E).reduce((s, r) => s + r.kwhRealisasi, 0);
+        const m3Val = rows.filter(r => r.hari >= m3S && r.hari <= m3E).reduce((s, r) => s + r.kwhRealisasi, 0);
+        const m4Val = rows.filter(r => r.hari >= m4S && r.hari <= m4E).reduce((s, r) => s + r.kwhRealisasi, 0);
 
-                const gapM1 = targetMinggu - m1Val;
-                const carryM1 = Math.max(0, gapM1);
+        // 1. Selisih murni per minggu (Positif = Defisit, Negatif = Surplus)
+        const rawGapM1 = targetMinggu - m1Val;
+        const rawGapM2 = targetMinggu - m2Val;
+        const rawGapM3 = targetMinggu - m3Val;
+        const rawGapM4 = targetMinggu - m4Val;
 
-                const gapM2 = targetMinggu - m2Val;
-                const carryM2 = Math.max(0, gapM2 + carryM1);
+        // 2. GAP Mingguan Murni (Hanya tampilkan angka jika defisit / > 0)
+        const gapM1 = Math.max(0, rawGapM1);
+        const gapM2 = Math.max(0, rawGapM2);
+        const gapM3 = Math.max(0, rawGapM3);
+        const gapM4 = Math.max(0, rawGapM4);
 
-                const gapM3 = targetMinggu - m3Val;
-                const carryM3 = Math.max(0, gapM3 + carryM2);
+        // 3. GAP CARRY Kumulatif (Perhitungan berbasis total target vs total realisasi s/d minggu berjalan)
+        const carryM1 = Math.max(0, targetMinggu - m1Val);
+        const carryM2 = Math.max(0, (targetMinggu * 2) - (m1Val + m2Val));
+        const carryM3 = Math.max(0, (targetMinggu * 3) - (m1Val + m2Val + m3Val));
+        const carryM4 = Math.max(0, targetBulan - (m1Val + m2Val + m3Val + m4Val));
 
-                const gapM4 = targetMinggu - m4Val;
-                const carryM4 = Math.max(0, gapM4 + carryM3);
+        const totalLm = m1Val + m2Val + m3Val + m4Val;
 
-                const totalLm = m1Val + m2Val + m3Val + m4Val;
+        return {
+            unit: u,
+            targetBulan, targetMinggu,
+            m1: m1Val, gapM1, carryM1,
+            m2: m2Val, gapM2, carryM2,
+            m3: m3Val, gapM3, carryM3,
+            m4: m4Val, gapM4, carryM4,
+            totalLm
+        };
+    });
 
-                return {
-                    unit: u,
-                    targetBulan, targetMinggu,
-                    m1: m1Val, gapM1, carryM1,
-                    m2: m2Val, gapM2, carryM2,
-                    m3: m3Val, gapM3, carryM3,
-                    m4: m4Val, gapM4, carryM4,
-                    totalLm
-                };
-            });
+    // Akumulasi dasar realisasi & target UP3
+    const totalUP3 = summaryWeekly.reduce((acc, item) => {
+        acc.targetBulan += item.targetBulan;
+        acc.targetMinggu += item.targetMinggu;
+        acc.m1 += item.m1;
+        acc.m2 += item.m2;
+        acc.m3 += item.m3;
+        acc.m4 += item.m4;
+        acc.totalLm += item.totalLm;
+        return acc;
+    }, {
+        targetBulan: 0, targetMinggu: 0,
+        m1: 0, m2: 0, m3: 0, m4: 0,
+        totalLm: 0
+    });
 
-// 1. Akumulasi dasar realisasi & target UP3
-            const totalUP3 = summaryWeekly.reduce((acc, item) => {
-                acc.targetBulan += item.targetBulan;
-                acc.targetMinggu += item.targetMinggu;
-                acc.m1 += item.m1;
-                acc.m2 += item.m2;
-                acc.m3 += item.m3;
-                acc.m4 += item.m4;
-                acc.totalLm += item.totalLm;
-                return acc;
-            }, {
-                targetBulan: 0, targetMinggu: 0,
-                m1: 0, m2: 0, m3: 0, m4: 0,
-                totalLm: 0
-            });
+    // Hitung Gap Mingguan Murni UP3
+    const rawGapM1 = totalUP3.targetMinggu - totalUP3.m1;
+    const rawGapM2 = totalUP3.targetMinggu - totalUP3.m2;
+    const rawGapM3 = totalUP3.targetMinggu - totalUP3.m3;
+    const rawGapM4 = totalUP3.targetMinggu - totalUP3.m4;
 
-            // 2. Hitung Gap dan Gap Carry Total UP3 berdasarkan Target Mingguan UP3
-            totalUP3.gapM1 = Math.max(0, totalUP3.targetMinggu - totalUP3.m1);
-            totalUP3.carryM1 = totalUP3.gapM1;
+    // Gap M1-M4 untuk kolom GAP UP3
+    totalUP3.gapM1 = Math.max(0, rawGapM1);
+    totalUP3.gapM2 = Math.max(0, rawGapM2);
+    totalUP3.gapM3 = Math.max(0, rawGapM3);
+    totalUP3.gapM4 = Math.max(0, rawGapM4);
 
-            totalUP3.gapM2 = Math.max(0, totalUP3.targetMinggu - totalUP3.m2);
-            totalUP3.carryM2 = Math.max(0, totalUP3.gapM2 + totalUP3.carryM1);
+    // Gap Carry Kumulatif UP3 (Gunakan target kumulatif vs realisasi kumulatif)
+    totalUP3.carryM1 = Math.max(0, totalUP3.targetMinggu - totalUP3.m1);
+    totalUP3.carryM2 = Math.max(0, (totalUP3.targetMinggu * 2) - (totalUP3.m1 + totalUP3.m2));
+    totalUP3.carryM3 = Math.max(0, (totalUP3.targetMinggu * 3) - (totalUP3.m1 + totalUP3.m2 + totalUP3.m3));
+    totalUP3.carryM4 = Math.max(0, totalUP3.targetBulan - totalUP3.totalLm);
 
-            totalUP3.gapM3 = Math.max(0, totalUP3.targetMinggu - totalUP3.m3);
-            totalUP3.carryM3 = Math.max(0, totalUP3.gapM3 + totalUP3.carryM2);
+    const grandTarget = totalUP3.targetBulan;
+    const grandRealisasi = totalUP3.totalLm;
+    const gap = grandTarget - grandRealisasi;
+    const pct = grandTarget > 0 ? ((grandRealisasi / grandTarget) * 100).toFixed(1) : 0;
+    const totalPct = pct;
 
-            totalUP3.gapM4 = Math.max(0, totalUP3.targetMinggu - totalUP3.m4);
-            totalUP3.carryM4 = Math.max(0, totalUP3.gapM4 + totalUP3.carryM3);
-
-            const grandTarget = totalUP3.targetBulan;
-            const grandRealisasi = totalUP3.totalLm;
-            const gap = grandTarget - grandRealisasi;
-            const pct = grandTarget > 0 ? ((grandRealisasi / grandTarget) * 100).toFixed(1) : 0;
-            const totalPct = pct; // Didefinisikan untuk digunakan pada totalRow
 
             document.getElementById('kpi-target').innerText = Math.round(grandTarget).toLocaleString('id-ID');
             document.getElementById('kpi-realisasi').innerText = Math.round(grandRealisasi).toLocaleString('id-ID');
