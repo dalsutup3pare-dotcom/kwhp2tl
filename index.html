@@ -954,8 +954,9 @@
 
             let summaryWeekly = unitsToRender.map(u => {
                 const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
-                const targetBulan = getTargetForUnitAndMonth(u, month).tBulan;
-                const targetMinggu = Math.round(targetBulan / 4);
+                const targetData = getTargetForUnitAndMonth(u, month);
+		        const targetBulan = targetData.tBulan;
+		        const targetMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetBulan / 4);
 
                 const m1Val = rows.filter(r => r.hari >= m1S && r.hari <= m1E).reduce((s, r) => s + r.kwhRealisasi, 0);
                 const m2Val = rows.filter(r => r.hari >= m2S && r.hari <= m2E).reduce((s, r) => s + r.kwhRealisasi, 0);
