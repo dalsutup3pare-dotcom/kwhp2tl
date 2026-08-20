@@ -11,7 +11,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -91,7 +91,7 @@
                     </select>
                 </div>
 
-                <!-- Dropdown Bulan Single (Mode Daily, Matrix, Weekly) -->
+                <!-- Dropdown Bulan Single -->
                 <div id="container-single-month">
                     <label class="block text-xs font-semibold text-slate-600 mb-1">PILIH BULAN</label>
                     <select id="filter-month" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
@@ -110,7 +110,7 @@
                     </select>
                 </div>
 
-                <!-- Range Bulan Start (Mode Range) -->
+                <!-- Range Bulan Start -->
                 <div id="container-start-month" class="hidden">
                     <label class="block text-xs font-semibold text-slate-600 mb-1">DARI BULAN</label>
                     <select id="filter-month-start" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
@@ -129,7 +129,7 @@
                     </select>
                 </div>
 
-                <!-- Range Bulan End (Mode Range) -->
+                <!-- Range Bulan End -->
                 <div id="container-end-month" class="hidden">
                     <label class="block text-xs font-semibold text-slate-600 mb-1">SAMPAI BULAN</label>
                     <select id="filter-month-end" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
@@ -148,7 +148,7 @@
                     </select>
                 </div>
 
-                <!-- Dropdown Tanggal Specific (Mode Daily) -->
+                <!-- Dropdown Tanggal Specific -->
                 <div id="container-filter-date">
                     <label class="block text-xs font-semibold text-slate-600 mb-1">PILIH TANGGAL SPESIFIK</label>
                     <select id="filter-date" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 font-medium">
@@ -157,7 +157,7 @@
                 </div>
             </div>
 
-            <!-- Custom Weekly Date Range Selector (Mode LM Mingguan) -->
+            <!-- Custom Weekly Date Range Selector -->
             <div id="container-weekly-ranges" class="hidden mt-5 pt-4 border-t border-slate-100">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center space-x-1">
@@ -266,7 +266,7 @@
             </div>
         </div>
 
-        <!-- Section 4: Data Table View -->
+        <!-- Section 4: Data Table View Utama -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                 <div>
@@ -292,6 +292,85 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Section 5: Breakdown 4 Tabel Mingguan (M1 - M4) seperti Gambar 1 -->
+        <div id="container-extra-weekly-tables" class="hidden space-y-6">
+            <!-- Tabel Realisasi Minggu 1 (M1) -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
+                    <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-regular fa-calendar-check text-yellow-300"></i>
+                        <span id="m1-table-title">TABEL REALISASI MINGGU 1 (M1) (TANGGAL 1 S/D 7)</span>
+                    </div>
+                    <span class="text-xs text-teal-100 font-semibold uppercase" id="m1-month-label">BULAN: AGUSTUS 2026</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m1-head">
+                        </thead>
+                        <tbody id="m1-body" class="divide-y divide-slate-200 font-medium text-slate-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Realisasi Minggu 2 (M2) -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
+                    <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-regular fa-calendar-check text-yellow-300"></i>
+                        <span id="m2-table-title">TABEL REALISASI MINGGU 2 (M2) (TANGGAL 8 S/D 14)</span>
+                    </div>
+                    <span class="text-xs text-teal-100 font-semibold uppercase" id="m2-month-label">BULAN: AGUSTUS 2026</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m2-head">
+                        </thead>
+                        <tbody id="m2-body" class="divide-y divide-slate-200 font-medium text-slate-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Realisasi Minggu 3 (M3) -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
+                    <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-regular fa-calendar-check text-yellow-300"></i>
+                        <span id="m3-table-title">TABEL REALISASI MINGGU 3 (M3) (TANGGAL 15 S/D 21)</span>
+                    </div>
+                    <span class="text-xs text-teal-100 font-semibold uppercase" id="m3-month-label">BULAN: AGUSTUS 2026</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m3-head">
+                        </thead>
+                        <tbody id="m3-body" class="divide-y divide-slate-200 font-medium text-slate-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Realisasi Minggu 4 (M4) -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
+                    <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
+                        <i class="fa-regular fa-calendar-check text-yellow-300"></i>
+                        <span id="m4-table-title">TABEL REALISASI MINGGU 4 (M4) (TANGGAL 22 S/D 31)</span>
+                    </div>
+                    <span class="text-xs text-teal-100 font-semibold uppercase" id="m4-month-label">BULAN: AGUSTUS 2026</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m4-head">
+                        </thead>
+                        <tbody id="m4-body" class="divide-y divide-slate-200 font-medium text-slate-700">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -334,6 +413,7 @@
         const containerEndMonth = document.getElementById('container-end-month');
         const containerWeeklyRanges = document.getElementById('container-weekly-ranges');
         const containerFilterDate = document.getElementById('container-filter-date');
+        const containerExtraWeeklyTables = document.getElementById('container-extra-weekly-tables');
         const statusBadge = document.getElementById('status-badge');
         const refreshIcon = document.getElementById('refresh-icon');
 
@@ -505,6 +585,7 @@
             containerEndMonth.classList.add('hidden');
             containerFilterDate.classList.add('hidden');
             containerWeeklyRanges.classList.add('hidden');
+            containerExtraWeeklyTables.classList.add('hidden');
 
             if (mode === 'daily') {
                 tabDaily.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
@@ -530,6 +611,7 @@
                 tabWeekly.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
                 containerSingleMonth.classList.remove('hidden');
                 containerWeeklyRanges.classList.remove('hidden');
+                containerExtraWeeklyTables.classList.remove('hidden');
                 document.getElementById('kpi-target-label').innerText = "Target Bulan Ini";
                 document.getElementById('chart-title').innerText = "Grafik Komparasi Realisasi LM Mingguan (M1 - M4)";
                 document.getElementById('table-title').innerText = "Tabel Matriks Realisasi LM Mingguan";
@@ -643,7 +725,6 @@
             }], 'bar');
         }
 
-        /* TAB MODE: MATRIKS BULANAN SESUAI GAMBAR SPREADSHEET */
         function renderMatrixView(unitFilter, month) {
             const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
             const daysInMonth = new Date(2026, month, 0).getDate();
@@ -662,11 +743,9 @@
                 const totalBulanIni = Object.values(dailyValues).reduce((a, b) => a + b, 0);
                 const progressBulanIni = targets.tBulan > 0 ? (totalBulanIni / targets.tBulan) * 100 : 0;
 
-                // Hitung Kumulatif s/d Bulan Ini
                 const rowsKumulatif = dbP2TL.filter(r => r.bulan <= month && (u === "ALL" || r.unit === u));
                 const totalKumulatif = rowsKumulatif.reduce((sum, r) => sum + r.kwhRealisasi, 0);
                 
-                // Hitung Target Kumulatif s/d Bulan Ini
                 let targetKumulatif = 0;
                 for (let m = 1; m <= month; m++) {
                     targetKumulatif += getTargetForUnitAndMonth(u, m).tBulan;
@@ -687,7 +766,6 @@
                 };
             });
 
-            // Hitung Total UP3
             let totalUP3 = {
                 unit: "TOTAL REALISASI",
                 target2026: 0, targetBulan: 0, targetMinggu: 0, targetHari: 0,
@@ -718,14 +796,12 @@
             totalUP3.progressBulanIni = totalUP3.targetBulan > 0 ? (totalUP3.totalBulanIni / totalUP3.targetBulan) * 100 : 0;
             totalUP3.progressKumulatif = totalUP3.targetKumulatifTotal > 0 ? (totalUP3.totalKumulatif / totalUP3.targetKumulatifTotal) * 100 : 0;
 
-            // KPI Update
             document.getElementById('kpi-target').innerText = Math.round(totalUP3.targetBulan).toLocaleString('id-ID');
             document.getElementById('kpi-realisasi').innerText = Math.round(totalUP3.totalBulanIni).toLocaleString('id-ID');
             const gap = totalUP3.targetBulan - totalUP3.totalBulanIni;
             document.getElementById('kpi-gap').innerText = gap > 0 ? Math.round(gap).toLocaleString('id-ID') : "0 (TERCAPAI)";
             document.getElementById('kpi-percentage').innerText = totalUP3.progressBulanIni.toFixed(2) + "%";
 
-            // Render Head Table Persis Excel
             const thead = document.getElementById('table-head');
             let daysHeader = '';
             for (let d = 1; d <= 31; d++) {
@@ -754,7 +830,6 @@
                 </tr>
             `;
 
-            // Render Body Table
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = rowData.map((row, idx) => {
                 let daysCells = '';
@@ -781,7 +856,6 @@
                 `;
             }).join('');
 
-            // Baris TOTAL REALISASI (Footer)
             let totalDaysCells = '';
             for (let d = 1; d <= 31; d++) {
                 const val = totalUP3.dailyValues[d];
@@ -803,7 +877,6 @@
                 </tr>
             `;
 
-            // Grafik Komparasi Realisasi
             const labels = rowData.map(r => r.unit);
             updateChart(labels, [
                 {
@@ -944,102 +1017,97 @@
             ], 'bar');
         }
 
+        /* TAB MODE: REALISASI LM MINGGUAN TERMASUK 4 TABEL BREAKDOWN MINGGUAN SESUAI GAMBAR 1 */
         function renderWeeklyView(unitFilter, month) {
-    const m1S = parseInt(mInputs.m1.start.value) || 1, m1E = parseInt(mInputs.m1.end.value) || 7;
-    const m2S = parseInt(mInputs.m2.start.value) || 8, m2E = parseInt(mInputs.m2.end.value) || 14;
-    const m3S = parseInt(mInputs.m3.start.value) || 15, m3E = parseInt(mInputs.m3.end.value) || 21;
-    const m4S = parseInt(mInputs.m4.start.value) || 22, m4E = parseInt(mInputs.m4.end.value) || 31;
+            const m1S = parseInt(mInputs.m1.start.value) || 1, m1E = parseInt(mInputs.m1.end.value) || 7;
+            const m2S = parseInt(mInputs.m2.start.value) || 8, m2E = parseInt(mInputs.m2.end.value) || 14;
+            const m3S = parseInt(mInputs.m3.start.value) || 15, m3E = parseInt(mInputs.m3.end.value) || 21;
+            const m4S = parseInt(mInputs.m4.start.value) || 22, m4E = parseInt(mInputs.m4.end.value) || 31;
 
-    const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
+            const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
+            const monthNameUpper = monthNames[month - 1].toUpperCase();
 
-    let summaryWeekly = unitsToRender.map(u => {
-        const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
-        const targetData = getTargetForUnitAndMonth(u, month);
-        const targetBulan = targetData.tBulan;
-        const targetMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetBulan / 4);
+            let summaryWeekly = unitsToRender.map(u => {
+                const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
+                const targetData = getTargetForUnitAndMonth(u, month);
+                const targetBulan = targetData.tBulan;
+                const targetMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetBulan / 4);
 
-        const m1Val = rows.filter(r => r.hari >= m1S && r.hari <= m1E).reduce((s, r) => s + r.kwhRealisasi, 0);
-        const m2Val = rows.filter(r => r.hari >= m2S && r.hari <= m2E).reduce((s, r) => s + r.kwhRealisasi, 0);
-        const m3Val = rows.filter(r => r.hari >= m3S && r.hari <= m3E).reduce((s, r) => s + r.kwhRealisasi, 0);
-        const m4Val = rows.filter(r => r.hari >= m4S && r.hari <= m4E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const m1Val = rows.filter(r => r.hari >= m1S && r.hari <= m1E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const m2Val = rows.filter(r => r.hari >= m2S && r.hari <= m2E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const m3Val = rows.filter(r => r.hari >= m3S && r.hari <= m3E).reduce((s, r) => s + r.kwhRealisasi, 0);
+                const m4Val = rows.filter(r => r.hari >= m4S && r.hari <= m4E).reduce((s, r) => s + r.kwhRealisasi, 0);
 
-        // 1. Selisih murni per minggu (Positif = Defisit, Negatif = Surplus)
-        const rawGapM1 = targetMinggu - m1Val;
-        const rawGapM2 = targetMinggu - m2Val;
-        const rawGapM3 = targetMinggu - m3Val;
-        const rawGapM4 = targetMinggu - m4Val;
+                const rawGapM1 = targetMinggu - m1Val;
+                const rawGapM2 = targetMinggu - m2Val;
+                const rawGapM3 = targetMinggu - m3Val;
+                const rawGapM4 = targetMinggu - m4Val;
 
-        // 2. GAP Mingguan Murni (Hanya tampilkan angka jika defisit / > 0)
-        const gapM1 = Math.max(0, rawGapM1);
-        const gapM2 = Math.max(0, rawGapM2);
-        const gapM3 = Math.max(0, rawGapM3);
-        const gapM4 = Math.max(0, rawGapM4);
+                const gapM1 = Math.max(0, rawGapM1);
+                const gapM2 = Math.max(0, rawGapM2);
+                const gapM3 = Math.max(0, rawGapM3);
+                const gapM4 = Math.max(0, rawGapM4);
 
-        // 3. GAP CARRY Kumulatif (Perhitungan berbasis total target vs total realisasi s/d minggu berjalan)
-        const carryM1 = Math.max(0, targetMinggu - m1Val);
-        const carryM2 = Math.max(0, (targetMinggu * 2) - (m1Val + m2Val));
-        const carryM3 = Math.max(0, (targetMinggu * 3) - (m1Val + m2Val + m3Val));
-        const carryM4 = Math.max(0, targetBulan - (m1Val + m2Val + m3Val + m4Val));
+                const carryM1 = Math.max(0, targetMinggu - m1Val);
+                const carryM2 = Math.max(0, (targetMinggu * 2) - (m1Val + m2Val));
+                const carryM3 = Math.max(0, (targetMinggu * 3) - (m1Val + m2Val + m3Val));
+                const carryM4 = Math.max(0, targetBulan - (m1Val + m2Val + m3Val + m4Val));
 
-        const totalLm = m1Val + m2Val + m3Val + m4Val;
+                const totalLm = m1Val + m2Val + m3Val + m4Val;
 
-        return {
-            unit: u,
-            targetBulan, targetMinggu,
-            m1: m1Val, gapM1, carryM1,
-            m2: m2Val, gapM2, carryM2,
-            m3: m3Val, gapM3, carryM3,
-            m4: m4Val, gapM4, carryM4,
-            totalLm
-        };
-    });
+                return {
+                    unit: u,
+                    targetBulan, targetMinggu,
+                    m1: m1Val, gapM1, carryM1,
+                    m2: m2Val, gapM2, carryM2,
+                    m3: m3Val, gapM3, carryM3,
+                    m4: m4Val, gapM4, carryM4,
+                    totalLm
+                };
+            });
 
-    // Akumulasi dasar realisasi & target UP3
-    const totalUP3 = summaryWeekly.reduce((acc, item) => {
-        acc.targetBulan += item.targetBulan;
-        acc.targetMinggu += item.targetMinggu;
-        acc.m1 += item.m1;
-        acc.m2 += item.m2;
-        acc.m3 += item.m3;
-        acc.m4 += item.m4;
-        acc.totalLm += item.totalLm;
-        return acc;
-    }, {
-        targetBulan: 0, targetMinggu: 0,
-        m1: 0, m2: 0, m3: 0, m4: 0,
-        totalLm: 0
-    });
+            const totalUP3 = summaryWeekly.reduce((acc, item) => {
+                acc.targetBulan += item.targetBulan;
+                acc.targetMinggu += item.targetMinggu;
+                acc.m1 += item.m1;
+                acc.m2 += item.m2;
+                acc.m3 += item.m3;
+                acc.m4 += item.m4;
+                acc.totalLm += item.totalLm;
+                return acc;
+            }, {
+                targetBulan: 0, targetMinggu: 0,
+                m1: 0, m2: 0, m3: 0, m4: 0,
+                totalLm: 0
+            });
 
-    // Hitung Gap Mingguan Murni UP3
-    const rawGapM1 = totalUP3.targetMinggu - totalUP3.m1;
-    const rawGapM2 = totalUP3.targetMinggu - totalUP3.m2;
-    const rawGapM3 = totalUP3.targetMinggu - totalUP3.m3;
-    const rawGapM4 = totalUP3.targetMinggu - totalUP3.m4;
+            const rawGapM1 = totalUP3.targetMinggu - totalUP3.m1;
+            const rawGapM2 = totalUP3.targetMinggu - totalUP3.m2;
+            const rawGapM3 = totalUP3.targetMinggu - totalUP3.m3;
+            const rawGapM4 = totalUP3.targetMinggu - totalUP3.m4;
 
-    // Gap M1-M4 untuk kolom GAP UP3
-    totalUP3.gapM1 = Math.max(0, rawGapM1);
-    totalUP3.gapM2 = Math.max(0, rawGapM2);
-    totalUP3.gapM3 = Math.max(0, rawGapM3);
-    totalUP3.gapM4 = Math.max(0, rawGapM4);
+            totalUP3.gapM1 = Math.max(0, rawGapM1);
+            totalUP3.gapM2 = Math.max(0, rawGapM2);
+            totalUP3.gapM3 = Math.max(0, rawGapM3);
+            totalUP3.gapM4 = Math.max(0, rawGapM4);
 
-    // Gap Carry Kumulatif UP3 (Gunakan target kumulatif vs realisasi kumulatif)
-    totalUP3.carryM1 = Math.max(0, totalUP3.targetMinggu - totalUP3.m1);
-    totalUP3.carryM2 = Math.max(0, (totalUP3.targetMinggu * 2) - (totalUP3.m1 + totalUP3.m2));
-    totalUP3.carryM3 = Math.max(0, (totalUP3.targetMinggu * 3) - (totalUP3.m1 + totalUP3.m2 + totalUP3.m3));
-    totalUP3.carryM4 = Math.max(0, totalUP3.targetBulan - totalUP3.totalLm);
+            totalUP3.carryM1 = Math.max(0, totalUP3.targetMinggu - totalUP3.m1);
+            totalUP3.carryM2 = Math.max(0, (totalUP3.targetMinggu * 2) - (totalUP3.m1 + totalUP3.m2));
+            totalUP3.carryM3 = Math.max(0, (totalUP3.targetMinggu * 3) - (totalUP3.m1 + totalUP3.m2 + totalUP3.m3));
+            totalUP3.carryM4 = Math.max(0, totalUP3.targetBulan - totalUP3.totalLm);
 
-    const grandTarget = totalUP3.targetBulan;
-    const grandRealisasi = totalUP3.totalLm;
-    const gap = grandTarget - grandRealisasi;
-    const pct = grandTarget > 0 ? ((grandRealisasi / grandTarget) * 100).toFixed(1) : 0;
-    const totalPct = pct;
-
+            const grandTarget = totalUP3.targetBulan;
+            const grandRealisasi = totalUP3.totalLm;
+            const gap = grandTarget - grandRealisasi;
+            const pct = grandTarget > 0 ? ((grandRealisasi / grandTarget) * 100).toFixed(1) : 0;
+            const totalPct = pct;
 
             document.getElementById('kpi-target').innerText = Math.round(grandTarget).toLocaleString('id-ID');
             document.getElementById('kpi-realisasi').innerText = Math.round(grandRealisasi).toLocaleString('id-ID');
             document.getElementById('kpi-gap').innerText = gap > 0 ? Math.round(gap).toLocaleString('id-ID') : "0 (TERCAPAI)";
             document.getElementById('kpi-percentage').innerText = pct + "%";
 
+            // Render Header Matriks LM Utama
             const thead = document.getElementById('table-head');
             thead.innerHTML = `
                 <tr>
@@ -1080,7 +1148,6 @@
             let htmlRows = summaryWeekly.map(item => {
                 const itemPct = item.targetBulan > 0 ? ((item.totalLm / item.targetBulan) * 100).toFixed(1) : 0;
                 
-                // Hitung persentase per minggu
                 const pctM1 = item.targetMinggu > 0 ? ((item.m1 / item.targetMinggu) * 100).toFixed(1) : 0;
                 const pctM2 = item.targetMinggu > 0 ? ((item.m2 / item.targetMinggu) * 100).toFixed(1) : 0;
                 const pctM3 = item.targetMinggu > 0 ? ((item.m3 / item.targetMinggu) * 100).toFixed(1) : 0;
@@ -1166,6 +1233,14 @@
 
             tbody.innerHTML = htmlRows + totalRow;
 
+            // Render 4 Tabel Detail Mingguan persis Gambar 1
+            renderFourWeeklyTables(unitsToRender, month, {
+                m1: { start: m1S, end: m1E },
+                m2: { start: m2S, end: m2E },
+                m3: { start: m3S, end: m3E },
+                m4: { start: m4S, end: m4E }
+            });
+
             const labels = ['Minggu 1 (M1)', 'Minggu 2 (M2)', 'Minggu 3 (M3)', 'Minggu 4 (M4)'];
             updateChart(labels, [{
                 label: 'Total Realisasi LM Mingguan (kWh)',
@@ -1180,6 +1255,124 @@
                 borderWidth: 1.5,
                 borderRadius: 6
             }], 'bar');
+        }
+
+        /* FUNGSI GENERATOR 4 TABEL REALISASI MINGGUAN SESUAI GAMBAR 1 */
+        function renderFourWeeklyTables(units, month, weeks) {
+            const monthNameUpper = monthNames[month - 1].toUpperCase();
+            
+            [1, 2, 3, 4].forEach(wIndex => {
+                const wConfig = weeks[`m${wIndex}`];
+                const startDay = wConfig.start;
+                const endDay = wConfig.end;
+
+                document.getElementById(`m${wIndex}-table-title`).innerText = `TABEL REALISASI MINGGU ${wIndex} (M${wIndex}) (TANGGAL ${startDay} S/D ${endDay})`;
+                document.getElementById(`m${wIndex}-month-label`).innerText = `BULAN: ${monthNameUpper} 2026`;
+
+                let dayHeaders = '';
+                for (let d = startDay; d <= endDay; d++) {
+                    dayHeaders += `<th class="px-2 py-2 text-center border-r border-slate-200 min-w-[36px]">${d}</th>`;
+                }
+
+                const headEl = document.getElementById(`m${wIndex}-head`);
+                headEl.innerHTML = `
+                    <tr class="bg-slate-100 text-slate-800">
+                        <th class="px-3 py-2.5 text-left border-r border-slate-200 min-w-[140px]">UNIT / ULP</th>
+                        <th class="px-3 py-2.5 text-right border-r border-slate-200 min-w-[110px]">TARGET MINGGU</th>
+                        ${dayHeaders}
+                        <th class="px-3 py-2.5 text-right border-r border-slate-200 min-w-[110px]">TOTAL REALISASI</th>
+                        <th class="px-3 py-2.5 text-right border-r border-slate-200 min-w-[120px]">GAP / DEFISIT TOTAL</th>
+                        <th class="px-3 py-2.5 text-center min-w-[100px]">PENCAPAIAN</th>
+                    </tr>
+                `;
+
+                let totalTargetWeekUP3 = 0;
+                let totalRealisasiWeekUP3 = 0;
+                let dailyUP3 = {};
+                for (let d = startDay; d <= endDay; d++) dailyUP3[d] = 0;
+
+                const bodyRows = units.map(u => {
+                    const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
+                    const targetData = getTargetForUnitAndMonth(u, month);
+                    const tMinggu = targetData.tMinggu > 0 ? targetData.tMinggu : Math.round(targetData.tBulan / 4);
+
+                    let dailyVals = {};
+                    let weekTotal = 0;
+
+                    for (let d = startDay; d <= endDay; d++) {
+                        const match = rows.find(r => r.hari === d);
+                        const val = match ? match.kwhRealisasi : 0;
+                        dailyVals[d] = val;
+                        weekTotal += val;
+                        dailyUP3[d] += val;
+                    }
+
+                    totalTargetWeekUP3 += tMinggu;
+                    totalRealisasiWeekUP3 += weekTotal;
+
+                    const gapVal = tMinggu - weekTotal;
+                    const pctVal = tMinggu > 0 ? (weekTotal / tMinggu) * 100 : 0;
+
+                    let daysCells = '';
+                    for (let d = startDay; d <= endDay; d++) {
+                        const v = dailyVals[d];
+                        daysCells += `<td class="px-2 py-2 text-center border-r border-slate-200 font-mono ${v > 0 ? 'font-bold text-slate-800' : 'text-slate-300'}">${v > 0 ? Math.round(v).toLocaleString('id-ID') : '-'}</td>`;
+                    }
+
+                    let pctBadgeClass = "bg-amber-100 text-amber-900 border border-amber-300";
+                    if (pctVal >= 100) {
+                        pctBadgeClass = "bg-emerald-200 text-emerald-950 font-black border border-emerald-400";
+                    } else if (pctVal >= 50) {
+                        pctBadgeClass = "bg-yellow-200 text-yellow-950 font-bold border border-yellow-400";
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-200 text-xs">
+                            <td class="px-3 py-2 font-bold text-slate-800 border-r border-slate-200">${u}</td>
+                            <td class="px-3 py-2 text-right border-r border-slate-200 font-mono">${Math.round(tMinggu).toLocaleString('id-ID')}</td>
+                            ${daysCells}
+                            <td class="px-3 py-2 text-right font-black border-r border-slate-200 text-teal-800">${Math.round(weekTotal).toLocaleString('id-ID')}</td>
+                            <td class="px-3 py-2 text-right border-r border-slate-200 font-medium ${gapVal > 0 ? 'text-amber-700' : 'text-emerald-700'}">
+                                ${gapVal > 0 ? Math.round(gapVal).toLocaleString('id-ID') : '0 (Tercapai)'}
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                <span class="px-2 py-0.5 rounded text-[11px] font-extrabold ${pctBadgeClass}">
+                                    ${pctVal.toFixed(1)}%
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                const gapUP3 = totalTargetWeekUP3 - totalRealisasiWeekUP3;
+                const pctUP3 = totalTargetWeekUP3 > 0 ? (totalRealisasiWeekUP3 / totalTargetWeekUP3) * 100 : 0;
+
+                let daysUP3Cells = '';
+                for (let d = startDay; d <= endDay; d++) {
+                    const v = dailyUP3[d];
+                    daysUP3Cells += `<td class="px-2 py-2 text-center border-r border-slate-700 font-mono text-teal-200 font-bold">${v > 0 ? Math.round(v).toLocaleString('id-ID') : '-'}</td>`;
+                }
+
+                let pctBadgeClassUP3 = "bg-amber-400 text-slate-950";
+                if (pctUP3 >= 100) pctBadgeClassUP3 = "bg-emerald-400 text-slate-950 font-black";
+
+                const footerRow = `
+                    <tr class="bg-slate-900 text-white font-extrabold text-xs">
+                        <td class="px-3 py-2.5 uppercase tracking-wider border-r border-slate-700">TOTAL UP3</td>
+                        <td class="px-3 py-2.5 text-right border-r border-slate-700 font-mono text-amber-300">${Math.round(totalTargetWeekUP3).toLocaleString('id-ID')}</td>
+                        ${daysUP3Cells}
+                        <td class="px-3 py-2.5 text-right border-r border-slate-700 text-emerald-300 font-black">${Math.round(totalRealisasiWeekUP3).toLocaleString('id-ID')}</td>
+                        <td class="px-3 py-2.5 text-right border-r border-slate-700 text-amber-300 font-bold">${gapUP3 > 0 ? Math.round(gapUP3).toLocaleString('id-ID') : '0 (Tercapai)'}</td>
+                        <td class="px-3 py-2.5 text-center">
+                            <span class="px-2.5 py-0.5 rounded text-xs font-black ${pctBadgeClassUP3}">
+                                ${pctUP3.toFixed(1)}%
+                            </span>
+                        </td>
+                    </tr>
+                `;
+
+                document.getElementById(`m${wIndex}-body`).innerHTML = bodyRows + footerRow;
+            });
         }
 
         function initChart() {
