@@ -29,7 +29,7 @@
                     <i class="fa-solid fa-bolt"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">MONITORING P2TL HARIAN & MINGGUAN (LM)</h1>
+                    <h1 class="font-bold text-lg leading-tight">MONITORING KINERJA P2TL</h1>
                     <p class="text-xs text-teal-200">PT PLN (Persero) UP3 PAREPARE</p>
                 </div>
             </div>
@@ -49,23 +49,46 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         <!-- Mode Selector Tabs -->
-        <div class="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div class="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 grid grid-cols-2 md:grid-cols-6 gap-2">
             <button id="tab-daily" onclick="switchMode('daily')" class="py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm">
                 <i class="fa-regular fa-calendar-days"></i>
                 <span>Filter Harian</span>
             </button>
             <button id="tab-matrix" onclick="switchMode('matrix')" class="py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
                 <i class="fa-solid fa-table-cells"></i>
-                <span>Matriks Bulanan (Tgl 1-31)</span>
+                <span>Matriks Bulanan</span>
             </button>
             <button id="tab-range" onclick="switchMode('range')" class="py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
                 <i class="fa-solid fa-calendar-week"></i>
-                <span>Range Bulan (Kumulatif)</span>
+                <span>Range Bulan</span>
             </button>
             <button id="tab-weekly" onclick="switchMode('weekly')" class="py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Realisasi LM Mingguan (M1-M4)</span>
+                <span>Realisasi LM</span>
             </button>
+            <!-- Tab Baru 1 -->
+            <button id="tab-pju" onclick="switchMode('pju')" class="py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>PJU & NON PJU</span>
+            </button>
+            <!-- Tab Baru 2 -->
+            <button id="tab-pk" onclick="switchMode('pk')" class="py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-users-viewfinder"></i>
+                <span>Realisasi P & K</span>
+            </button>
+        </div>
+
+        <!-- Mode Tipe Filter (Single vs Kumulatif) Khusus Menu Baru -->
+        <div id="container-filter-mode-selector" class="hidden bg-teal-50/70 p-3 rounded-xl border border-teal-200 flex items-center space-x-4">
+            <span class="text-xs font-bold text-teal-900 uppercase">Tipe Tampilan Data:</span>
+            <label class="inline-flex items-center text-xs font-semibold text-slate-700 cursor-pointer">
+                <input type="radio" name="filterModeType" value="single" checked onchange="toggleNewMenuFilterType('single')" class="text-teal-600 focus:ring-teal-500">
+                <span class="ml-1.5">Single Bulan</span>
+            </label>
+            <label class="inline-flex items-center text-xs font-semibold text-slate-700 cursor-pointer">
+                <input type="radio" name="filterModeType" value="kumulatif" onchange="toggleNewMenuFilterType('kumulatif')" class="text-teal-600 focus:ring-teal-500">
+                <span class="ml-1.5">Kumulatif Range Bulan</span>
+            </label>
         </div>
 
         <!-- Section 1: Filter Controls -->
@@ -212,7 +235,7 @@
                 <div>
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="kpi-target-label">Target Bulanan</p>
                     <h3 id="kpi-target" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">kWh P2TL Target</p>
+                    <p class="text-xs text-slate-500 mt-0.5" id="kpi-subtext-1">kWh P2TL Target</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-bullseye"></i>
@@ -221,9 +244,9 @@
 
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Realisasi kWh</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="kpi-label-2">Realisasi kWh</p>
                     <h3 id="kpi-realisasi" class="text-2xl font-extrabold text-teal-700 mt-1">0</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">kWh Terakumulasi</p>
+                    <p class="text-xs text-slate-500 mt-0.5" id="kpi-subtext-2">kWh Terakumulasi</p>
                 </div>
                 <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-charging-station"></i>
@@ -232,9 +255,9 @@
 
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Sisa / Defisit Target</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="kpi-label-3">Sisa / Defisit Target</p>
                     <h3 id="kpi-gap" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">kWh Belum Tercapai</p>
+                    <p class="text-xs text-slate-500 mt-0.5" id="kpi-subtext-3">kWh Belum Tercapai</p>
                 </div>
                 <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-scale-unbalanced"></i>
@@ -243,9 +266,9 @@
 
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">% Pencapaian Target</p>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="kpi-label-4">% Pencapaian Target</p>
                     <h3 id="kpi-percentage" class="text-2xl font-extrabold text-emerald-600 mt-1">0.0%</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Pencapaian vs Target</p>
+                    <p class="text-xs text-slate-500 mt-0.5" id="kpi-subtext-4">Pencapaian vs Target</p>
                 </div>
                 <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-percent"></i>
@@ -257,11 +280,11 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
-                    <i class="fa-solid fa-chart-column text-teal-600"></i>
+                    <i class="fa-solid fa-chart-column text-teal-600" id="chart-icon"></i>
                     <span id="chart-title">Grafik Tren Realisasi kWh Harian</span>
                 </h2>
             </div>
-            <div class="relative h-72 w-full">
+            <div class="relative h-72 w-full flex justify-center">
                 <canvas id="p2tlChart"></canvas>
             </div>
         </div>
@@ -295,9 +318,8 @@
             </div>
         </div>
 
-        <!-- Section 5: Breakdown 4 Tabel Mingguan (M1 - M4) seperti Gambar 1 -->
+        <!-- Section 5: Breakdown 4 Tabel Mingguan (M1 - M4) -->
         <div id="container-extra-weekly-tables" class="hidden space-y-6">
-            <!-- Tabel Realisasi Minggu 1 (M1) -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
                     <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
@@ -308,15 +330,12 @@
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-xs text-left border-collapse">
-                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m1-head">
-                        </thead>
-                        <tbody id="m1-body" class="divide-y divide-slate-200 font-medium text-slate-700">
-                        </tbody>
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m1-head"></thead>
+                        <tbody id="m1-body" class="divide-y divide-slate-200 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Tabel Realisasi Minggu 2 (M2) -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
                     <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
@@ -327,15 +346,12 @@
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-xs text-left border-collapse">
-                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m2-head">
-                        </thead>
-                        <tbody id="m2-body" class="divide-y divide-slate-200 font-medium text-slate-700">
-                        </tbody>
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m2-head"></thead>
+                        <tbody id="m2-body" class="divide-y divide-slate-200 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Tabel Realisasi Minggu 3 (M3) -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
                     <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
@@ -346,15 +362,12 @@
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-xs text-left border-collapse">
-                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m3-head">
-                        </thead>
-                        <tbody id="m3-body" class="divide-y divide-slate-200 font-medium text-slate-700">
-                        </tbody>
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m3-head"></thead>
+                        <tbody id="m3-body" class="divide-y divide-slate-200 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Tabel Realisasi Minggu 4 (M4) -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="bg-teal-700 text-white px-4 py-2.5 flex items-center justify-between">
                     <div class="flex items-center space-x-2 font-bold text-xs uppercase tracking-wider">
@@ -365,10 +378,8 @@
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-xs text-left border-collapse">
-                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m4-head">
-                        </thead>
-                        <tbody id="m4-body" class="divide-y divide-slate-200 font-medium text-slate-700">
-                        </tbody>
+                        <thead class="bg-slate-100 text-slate-700 font-bold uppercase border-b border-slate-200" id="m4-head"></thead>
+                        <tbody id="m4-body" class="divide-y divide-slate-200 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
             </div>
@@ -383,7 +394,7 @@
 
     <!-- JavaScript Integration -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6n9R5LqAhoLRgCzmC-O79B1hUWsVL2kq2joLHTbyysgBGs3iYPkxb0YRVW2bAsdDl3Q/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby7MLBHhOp2pn2djKKK3_zIFGQNnY_WUOW0P7zMPMToCaSvVi1oJH-nVHeVDwNApw7NlQ/exec";
 
         const unitsList = ["MATTIROTASI", "BARRU", "RAPPANG", "TANRU TEDONG", "PANGSID", "SOPPENG", "PAJALESANG"];
         const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -400,6 +411,7 @@
 
         let dbP2TL = [];
         let currentMode = 'daily';
+        let newMenuFilterType = 'single'; // 'single' atau 'kumulatif'
         let p2tlChartInstance = null;
 
         const filterUnitEl = document.getElementById('filter-unit');
@@ -414,6 +426,7 @@
         const containerWeeklyRanges = document.getElementById('container-weekly-ranges');
         const containerFilterDate = document.getElementById('container-filter-date');
         const containerExtraWeeklyTables = document.getElementById('container-extra-weekly-tables');
+        const containerFilterModeSelector = document.getElementById('container-filter-mode-selector');
         const statusBadge = document.getElementById('status-badge');
         const refreshIcon = document.getElementById('refresh-icon');
 
@@ -507,7 +520,14 @@
                     targetBulan: parseFloat(item["TARGET BULAN"] || item["TARGET_BULAN"] || 0),
                     targetMinggu: parseFloat(item["TARGET MINGGU"] || item["TARGET_MINGGU"] || 0),
                     targetHari: parseFloat(item["TARGET HARI"] || item["TARGET_HARI"] || 0),
-                    kwhRealisasi: isNaN(kwhVal) ? 0 : kwhVal
+                    kwhRealisasi: isNaN(kwhVal) ? 0 : kwhVal,
+                    // Pemetaan Kolom I, J, K, L, M, N
+                    pju: parseFloat(item["PJU"] || item["pju"] || 0),
+                    nonPju: parseFloat(item["NON PJU"] || item["NON_PJU"] || item["nonPju"] || 0),
+                    pelangganP: parseFloat(item["P"] || item["p"] || 0),
+                    pelangganK: parseFloat(item["K"] || item["k"] || 0),
+                    realisasiP: parseFloat(item["REALISASI P"] || item["REALISASI_P"] || item["realisasiP"] || 0),
+                    realisasiK: parseFloat(item["REALISASI K"] || item["REALISASI_K"] || item["realisasiK"] || 0)
                 };
             });
 
@@ -571,13 +591,13 @@
 
         function switchMode(mode) {
             currentMode = mode;
-            const tabDaily = document.getElementById('tab-daily');
-            const tabMatrix = document.getElementById('tab-matrix');
-            const tabRange = document.getElementById('tab-range');
-            const tabWeekly = document.getElementById('tab-weekly');
+            const tabs = ['tab-daily', 'tab-matrix', 'tab-range', 'tab-weekly', 'tab-pju', 'tab-pk'];
 
-            [tabDaily, tabMatrix, tabRange, tabWeekly].forEach(tab => {
-                tab.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100";
+            tabs.forEach(tabId => {
+                const tab = document.getElementById(tabId);
+                if (tab) {
+                    tab.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 text-slate-600 hover:bg-slate-100";
+                }
             });
 
             containerSingleMonth.classList.add('hidden');
@@ -586,37 +606,93 @@
             containerFilterDate.classList.add('hidden');
             containerWeeklyRanges.classList.add('hidden');
             containerExtraWeeklyTables.classList.add('hidden');
+            containerFilterModeSelector.classList.add('hidden');
+
+            // Reset Subtext KPI
+            document.getElementById('kpi-subtext-1').innerText = "kWh P2TL Target";
+            document.getElementById('kpi-subtext-2').innerText = "kWh Terakumulasi";
+            document.getElementById('kpi-subtext-3').innerText = "kWh Belum Tercapai";
+            document.getElementById('kpi-subtext-4').innerText = "Pencapaian vs Target";
+            document.getElementById('kpi-label-2').innerText = "Realisasi kWh";
+            document.getElementById('kpi-label-3').innerText = "Sisa / Defisit Target";
+            document.getElementById('kpi-label-4').innerText = "% Pencapaian Target";
 
             if (mode === 'daily') {
-                tabDaily.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                document.getElementById('tab-daily').className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
                 containerSingleMonth.classList.remove('hidden');
                 containerFilterDate.classList.remove('hidden');
                 document.getElementById('kpi-target-label').innerText = "Target Bulan Ini";
                 document.getElementById('chart-title').innerText = "Grafik Tren Realisasi kWh Harian";
                 document.getElementById('table-title').innerText = "Tabel Rincian Pencapaian Realisasi Harian";
             } else if (mode === 'matrix') {
-                tabMatrix.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                document.getElementById('tab-matrix').className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
                 containerSingleMonth.classList.remove('hidden');
                 document.getElementById('kpi-target-label').innerText = "Target Bulan Ini";
                 document.getElementById('chart-title').innerText = "Grafik Realisasi vs Target Per ULP";
                 document.getElementById('table-title').innerText = "Matriks Realisasi Harian Tanggal 1 s/d 31";
             } else if (mode === 'range') {
-                tabRange.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                document.getElementById('tab-range').className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
                 containerStartMonth.classList.remove('hidden');
                 containerEndMonth.classList.remove('hidden');
                 document.getElementById('kpi-target-label').innerText = "Target Range Bulan";
                 document.getElementById('chart-title').innerText = "Grafik Komparasi Target vs Realisasi Kumulatif Per Bulan";
                 document.getElementById('table-title').innerText = "Tabel Rekapitulasi Kumulatif Range Bulan";
-            } else {
-                tabWeekly.className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+            } else if (mode === 'weekly') {
+                document.getElementById('tab-weekly').className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
                 containerSingleMonth.classList.remove('hidden');
                 containerWeeklyRanges.classList.remove('hidden');
                 containerExtraWeeklyTables.classList.remove('hidden');
                 document.getElementById('kpi-target-label').innerText = "Target Bulan Ini";
                 document.getElementById('chart-title').innerText = "Grafik Komparasi Realisasi LM Mingguan (M1 - M4)";
                 document.getElementById('table-title').innerText = "Tabel Matriks Realisasi LM Mingguan";
+            } else if (mode === 'pju') {
+                document.getElementById('tab-pju').className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                containerFilterModeSelector.classList.remove('hidden');
+                updateNewMenuFilterVisibility();
+                document.getElementById('kpi-target-label').innerText = "Total kWh Realisasi";
+                document.getElementById('kpi-label-2').innerText = "Realisasi PJU";
+                document.getElementById('kpi-label-3').innerText = "Realisasi NON PJU";
+                document.getElementById('kpi-label-4').innerText = "Rasio PJU";
+                document.getElementById('kpi-subtext-1').innerText = "PJU + NON PJU";
+                document.getElementById('kpi-subtext-2').innerText = "KWH GOLONGAN PJU";
+                document.getElementById('kpi-subtext-3').innerText = "KWH GOLONGAN NON PJU";
+                document.getElementById('kpi-subtext-4').innerText = "PJU / Total Realisasi";
+                document.getElementById('chart-title').innerText = "Pie Chart Komposisi kWh PJU vs NON PJU";
+                document.getElementById('table-title').innerText = "Matriks Komposisi kWh PJU & NON PJU";
+            } else if (mode === 'pk') {
+                document.getElementById('tab-pk').className = "py-2.5 px-3 rounded-lg font-semibold text-xs sm:text-sm transition flex items-center justify-center space-x-2 bg-teal-700 text-white shadow-sm";
+                containerFilterModeSelector.classList.remove('hidden');
+                updateNewMenuFilterVisibility();
+                document.getElementById('kpi-target-label').innerText = "Total Realisasi kWh (P+K)";
+                document.getElementById('kpi-label-2').innerText = "Realisasi P (kWh)";
+                document.getElementById('kpi-label-3').innerText = "Realisasi K (kWh)";
+                document.getElementById('kpi-label-4').innerText = "Total Pelanggan (P+K)";
+                document.getElementById('kpi-subtext-1').innerText = "KATEGORI P + KATEGORI K";
+                document.getElementById('kpi-subtext-2').innerText = "KATEGORI P";
+                document.getElementById('kpi-subtext-3').innerText = "KATEGORI K";
+                document.getElementById('kpi-subtext-4').innerText = "PLG KATEGORI P + KATEGORI K";
+                document.getElementById('chart-title').innerText = "Grafik Komparasi Realisasi kWh P vs K Per Unit";
+                document.getElementById('table-title').innerText = "Matriks Komposisi Realisasi P & K serta Jumlah Pelanggan";
             }
             renderDashboard();
+        }
+
+        function toggleNewMenuFilterType(type) {
+            newMenuFilterType = type;
+            updateNewMenuFilterVisibility();
+            renderDashboard();
+        }
+
+        function updateNewMenuFilterVisibility() {
+            if (newMenuFilterType === 'single') {
+                containerSingleMonth.classList.remove('hidden');
+                containerStartMonth.classList.add('hidden');
+                containerEndMonth.classList.add('hidden');
+            } else {
+                containerSingleMonth.classList.add('hidden');
+                containerStartMonth.classList.remove('hidden');
+                containerEndMonth.classList.remove('hidden');
+            }
         }
 
         function resetDefaultWeeks() {
@@ -625,6 +701,28 @@
             mInputs.m3.start.value = 15; mInputs.m3.end.value = 21;
             mInputs.m4.start.value = 22; mInputs.m4.end.value = 31;
             renderDashboard();
+        }
+
+        function getFilteredDataset() {
+            const unit = filterUnitEl.value;
+            let filtered = [...dbP2TL];
+
+            if (unit !== "ALL") {
+                filtered = filtered.filter(row => row.unit === unit);
+            }
+
+            if (currentMode === 'pju' || currentMode === 'pk') {
+                if (newMenuFilterType === 'single') {
+                    const month = parseInt(filterMonthEl.value);
+                    filtered = filtered.filter(row => row.bulan === month);
+                } else {
+                    let startM = parseInt(filterMonthStartEl.value);
+                    let endM = parseInt(filterMonthEndEl.value);
+                    if (startM > endM) { const temp = startM; startM = endM; endM = temp; }
+                    filtered = filtered.filter(row => row.bulan >= startM && row.bulan <= endM);
+                }
+            }
+            return filtered;
         }
 
         function renderDashboard() {
@@ -637,8 +735,12 @@
                 renderMatrixView(selectedUnit, selectedMonth);
             } else if (currentMode === 'range') {
                 renderRangeView(selectedUnit);
-            } else {
+            } else if (currentMode === 'weekly') {
                 renderWeeklyView(selectedUnit, selectedMonth);
+            } else if (currentMode === 'pju') {
+                renderPJUView();
+            } else if (currentMode === 'pk') {
+                renderPKView();
             }
         }
 
@@ -1017,7 +1119,6 @@
             ], 'bar');
         }
 
-        /* TAB MODE: REALISASI LM MINGGUAN TERMASUK 4 TABEL BREAKDOWN MINGGUAN SESUAI GAMBAR 1 */
         function renderWeeklyView(unitFilter, month) {
             const m1S = parseInt(mInputs.m1.start.value) || 1, m1E = parseInt(mInputs.m1.end.value) || 7;
             const m2S = parseInt(mInputs.m2.start.value) || 8, m2E = parseInt(mInputs.m2.end.value) || 14;
@@ -1025,7 +1126,6 @@
             const m4S = parseInt(mInputs.m4.start.value) || 22, m4E = parseInt(mInputs.m4.end.value) || 31;
 
             const unitsToRender = unitFilter === "ALL" ? unitsList : [unitFilter];
-            const monthNameUpper = monthNames[month - 1].toUpperCase();
 
             let summaryWeekly = unitsToRender.map(u => {
                 const rows = dbP2TL.filter(r => r.bulan === month && r.unit === u);
@@ -1107,7 +1207,6 @@
             document.getElementById('kpi-gap').innerText = gap > 0 ? Math.round(gap).toLocaleString('id-ID') : "0 (TERCAPAI)";
             document.getElementById('kpi-percentage').innerText = pct + "%";
 
-            // Render Header Matriks LM Utama
             const thead = document.getElementById('table-head');
             thead.innerHTML = `
                 <tr>
@@ -1159,24 +1258,20 @@
                         <td class="px-3 py-2.5 text-right font-medium">${Math.round(item.targetBulan).toLocaleString('id-ID')}</td>
                         <td class="px-3 py-2.5 text-right font-medium text-slate-600 border-r">${Math.round(item.targetMinggu).toLocaleString('id-ID')}</td>
                         
-                        <!-- M1 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m1).toLocaleString('id-ID')}</td>
                         <td class="px-2 py-2.5 text-center font-bold ${pctM1 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM1}%</td>
                         <td class="px-2 py-2.5 text-right border-r ${item.gapM1 > 0 ? 'text-rose-600 font-medium' : 'text-emerald-600'}">${item.gapM1 > 0 ? Math.round(item.gapM1).toLocaleString('id-ID') : '0'}</td>
                         
-                        <!-- M2 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m2).toLocaleString('id-ID')}</td>
                         <td class="px-2 py-2.5 text-center font-bold ${pctM2 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM2}%</td>
                         <td class="px-2 py-2.5 text-right ${item.gapM2 > 0 ? 'text-slate-600' : 'text-emerald-600'}">${item.gapM2 > 0 ? Math.round(item.gapM2).toLocaleString('id-ID') : '0'}</td>
                         <td class="px-2 py-2.5 text-right border-r font-bold text-amber-700 bg-amber-50/40">${item.carryM2 > 0 ? Math.round(item.carryM2).toLocaleString('id-ID') : '0'}</td>
                         
-                        <!-- M3 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m3).toLocaleString('id-ID')}</td>
                         <td class="px-2 py-2.5 text-center font-bold ${pctM3 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM3}%</td>
                         <td class="px-2 py-2.5 text-right ${item.gapM3 > 0 ? 'text-slate-600' : 'text-emerald-600'}">${item.gapM3 > 0 ? Math.round(item.gapM3).toLocaleString('id-ID') : '0'}</td>
                         <td class="px-2 py-2.5 text-right border-r font-bold text-amber-700 bg-amber-50/40">${item.carryM3 > 0 ? Math.round(item.carryM3).toLocaleString('id-ID') : '0'}</td>
                         
-                        <!-- M4 -->
                         <td class="px-2 py-2.5 text-right font-semibold">${Math.round(item.m4).toLocaleString('id-ID')}</td>
                         <td class="px-2 py-2.5 text-center font-bold ${pctM4 >= 100 ? 'text-emerald-600' : 'text-slate-700'}">${pctM4}%</td>
                         <td class="px-2 py-2.5 text-right ${item.gapM4 > 0 ? 'text-slate-600' : 'text-emerald-600'}">${item.gapM4 > 0 ? Math.round(item.gapM4).toLocaleString('id-ID') : '0'}</td>
@@ -1233,7 +1328,6 @@
 
             tbody.innerHTML = htmlRows + totalRow;
 
-            // Render 4 Tabel Detail Mingguan persis Gambar 1
             renderFourWeeklyTables(unitsToRender, month, {
                 m1: { start: m1S, end: m1E },
                 m2: { start: m2S, end: m2E },
@@ -1257,7 +1351,165 @@
             }], 'bar');
         }
 
-        /* FUNGSI GENERATOR 4 TABEL REALISASI MINGGUAN SESUAI GAMBAR 1 */
+        /* --- IMPLEMENTASI MENU TAB BARU 1: MATRIKS PJU DAN NON PJU --- */
+        function renderPJUView() {
+            const filtered = getFilteredDataset();
+            const selectedUnit = filterUnitEl.value;
+            const unitsToRender = selectedUnit === "ALL" ? unitsList : [selectedUnit];
+
+            let rowData = unitsToRender.map(u => {
+                const rows = filtered.filter(r => r.unit === u);
+                const pju = rows.reduce((s, r) => s + r.pju, 0);
+                const nonPju = rows.reduce((s, r) => s + r.nonPju, 0);
+                const total = pju + nonPju;
+                const ratioPju = total > 0 ? (pju / total) * 100 : 0;
+                return { unit: u, pju, nonPju, total, ratioPju };
+            });
+
+            const totalPJU = rowData.reduce((s, r) => s + r.pju, 0);
+            const totalNonPJU = rowData.reduce((s, r) => s + r.nonPju, 0);
+            const grandTotal = totalPJU + totalNonPJU;
+            const totalRatio = grandTotal > 0 ? (totalPJU / grandTotal) * 100 : 0;
+
+            document.getElementById('kpi-target').innerText = Math.round(grandTotal).toLocaleString('id-ID');
+            document.getElementById('kpi-realisasi').innerText = Math.round(totalPJU).toLocaleString('id-ID');
+            document.getElementById('kpi-gap').innerText = Math.round(totalNonPJU).toLocaleString('id-ID');
+            document.getElementById('kpi-percentage').innerText = totalRatio.toFixed(1) + "%";
+
+            const thead = document.getElementById('table-head');
+            thead.innerHTML = `
+                <tr>
+                    <th class="px-4 py-3 text-left">UNIT / ULP</th>
+                    <th class="px-4 py-3 text-right">REALISASI PJU (kWh)</th>
+                    <th class="px-4 py-3 text-right">REALISASI NON PJU (kWh)</th>
+                    <th class="px-4 py-3 text-right">TOTAL REALISASI (kWh)</th>
+                    <th class="px-4 py-3 text-center">RASIO PJU (%)</th>
+                </tr>
+            `;
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = rowData.map(r => `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="px-4 py-2.5 font-bold text-slate-800">${r.unit}</td>
+                    <td class="px-4 py-2.5 text-right font-semibold text-amber-700 font-mono">${Math.round(r.pju).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-2.5 text-right font-semibold text-teal-700 font-mono">${Math.round(r.nonPju).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-2.5 text-right font-black text-slate-900 font-mono">${Math.round(r.total).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-2.5 text-center font-bold text-slate-700">${r.ratioPju.toFixed(1)}%</td>
+                </tr>
+            `).join('');
+
+            tbody.innerHTML += `
+                <tr class="bg-slate-800 text-white font-extrabold text-xs">
+                    <td class="px-4 py-3 uppercase">TOTAL UP3</td>
+                    <td class="px-4 py-3 text-right text-amber-300 font-mono">${Math.round(totalPJU).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3 text-right text-teal-300 font-mono">${Math.round(totalNonPJU).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3 text-right text-yellow-300 font-mono">${Math.round(grandTotal).toLocaleString('id-ID')}</td>
+                    <td class="px-4 py-3 text-center text-emerald-300">${totalRatio.toFixed(1)}%</td>
+                </tr>
+            `;
+
+            updateChart(['Realisasi PJU', 'Realisasi NON PJU'], [{
+                data: [totalPJU, totalNonPJU],
+                backgroundColor: ['#f59e0b', '#0d9488'],
+                hoverOffset: 6
+            }], 'pie');
+        }
+
+        /* --- IMPLEMENTASI MENU TAB BARU 2: MATRIKS REALISASI P & K SERTA JUMLAH PELANGGAN --- */
+        function renderPKView() {
+            const filtered = getFilteredDataset();
+            const selectedUnit = filterUnitEl.value;
+            const unitsToRender = selectedUnit === "ALL" ? unitsList : [selectedUnit];
+
+            let rowData = unitsToRender.map(u => {
+                const rows = filtered.filter(r => r.unit === u);
+                const pelP = rows.reduce((s, r) => s + r.pelangganP, 0);
+                const pelK = rows.reduce((s, r) => s + r.pelangganK, 0);
+                const realP = rows.reduce((s, r) => s + r.realisasiP, 0);
+                const realK = rows.reduce((s, r) => s + r.realisasiK, 0);
+                const totalPel = pelP + pelK;
+                const totalReal = realP + realK;
+
+                return { unit: u, pelP, pelK, totalPel, realP, realK, totalReal };
+            });
+
+            const totalPelP = rowData.reduce((s, r) => s + r.pelP, 0);
+            const totalPelK = rowData.reduce((s, r) => s + r.pelK, 0);
+            const totalPelAll = totalPelP + totalPelK;
+
+            const totalRealP = rowData.reduce((s, r) => s + r.realP, 0);
+            const totalRealK = rowData.reduce((s, r) => s + r.realK, 0);
+            const totalRealAll = totalRealP + totalRealK;
+
+            document.getElementById('kpi-target').innerText = Math.round(totalRealAll).toLocaleString('id-ID');
+            document.getElementById('kpi-realisasi').innerText = Math.round(totalRealP).toLocaleString('id-ID');
+            document.getElementById('kpi-gap').innerText = Math.round(totalRealK).toLocaleString('id-ID');
+            document.getElementById('kpi-percentage').innerText = totalPelAll.toLocaleString('id-ID') + " Plg";
+
+            const thead = document.getElementById('table-head');
+            thead.innerHTML = `
+                <tr>
+                    <th class="px-3 py-3 text-left" rowspan="2">UNIT / ULP</th>
+                    <th class="px-3 py-2 text-center bg-indigo-50 border-r" colspan="3">JUMLAH PELANGGAN (PLG)</th>
+                    <th class="px-3 py-2 text-center bg-teal-50 border-r" colspan="3">REALISASI KWH</th>
+                </tr>
+                <tr class="text-xs">
+                    <th class="px-2 py-1 text-right bg-indigo-50">PELANGGAN P</th>
+                    <th class="px-2 py-1 text-right bg-indigo-50">PELANGGAN K</th>
+                    <th class="px-2 py-1 text-right bg-indigo-100/70 border-r font-bold">TOTAL PELANGGAN</th>
+                    
+                    <th class="px-2 py-1 text-right bg-teal-50">REALISASI P (kWh)</th>
+                    <th class="px-2 py-1 text-right bg-teal-50">REALISASI K (kWh)</th>
+                    <th class="px-2 py-1 text-right bg-teal-100/70 font-black text-teal-900">TOTAL REALISASI</th>
+                </tr>
+            `;
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = rowData.map(r => `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-200 text-xs">
+                    <td class="px-3 py-2.5 font-bold text-slate-800">${r.unit}</td>
+                    <td class="px-2 py-2.5 text-right font-mono">${r.pelP.toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-2.5 text-right font-mono">${r.pelK.toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-2.5 text-right font-bold text-indigo-900 bg-indigo-50/50 border-r font-mono">${r.totalPel.toLocaleString('id-ID')}</td>
+                    
+                    <td class="px-2 py-2.5 text-right font-semibold text-teal-700 font-mono">${Math.round(r.realP).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-2.5 text-right font-semibold text-purple-700 font-mono">${Math.round(r.realK).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-2.5 text-right font-black text-slate-900 bg-teal-50/50 font-mono">${Math.round(r.totalReal).toLocaleString('id-ID')}</td>
+                </tr>
+            `).join('');
+
+            tbody.innerHTML += `
+                <tr class="bg-slate-800 text-white font-extrabold text-xs">
+                    <td class="px-3 py-3 uppercase">TOTAL UP3</td>
+                    <td class="px-2 py-3 text-right font-mono text-indigo-200">${totalPelP.toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono text-indigo-200">${totalPelK.toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono text-indigo-300 bg-slate-900 border-r">${totalPelAll.toLocaleString('id-ID')}</td>
+                    
+                    <td class="px-2 py-3 text-right font-mono text-teal-300">${Math.round(totalRealP).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono text-purple-300">${Math.round(totalRealK).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono text-yellow-300 bg-slate-900">${Math.round(totalRealAll).toLocaleString('id-ID')}</td>
+                </tr>
+            `;
+
+            const labels = rowData.map(r => r.unit);
+            updateChart(labels, [
+                {
+                    label: 'Realisasi P (kWh)',
+                    data: rowData.map(r => r.realP),
+                    backgroundColor: 'rgba(13, 148, 136, 0.8)',
+                    borderColor: '#0f766e',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Realisasi K (kWh)',
+                    data: rowData.map(r => r.realK),
+                    backgroundColor: 'rgba(147, 51, 234, 0.8)',
+                    borderColor: '#7e22ce',
+                    borderWidth: 1
+                }
+            ], 'bar');
+        }
+
         function renderFourWeeklyTables(units, month, weeks) {
             const monthNameUpper = monthNames[month - 1].toUpperCase();
             
@@ -1391,7 +1643,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return value.toLocaleString('id-ID') + ' kWh';
+                                    return value.toLocaleString('id-ID') + (currentMode === 'pk' || currentMode === 'daily' || currentMode === 'matrix' || currentMode === 'range' || currentMode === 'weekly' ? ' kWh' : '');
                                 }
                             }
                         }
@@ -1402,10 +1654,36 @@
 
         function updateChart(labels, datasets, type = 'bar') {
             if (!p2tlChartInstance) return;
-            p2tlChartInstance.config.type = type;
-            p2tlChartInstance.data.labels = labels;
-            p2tlChartInstance.data.datasets = datasets;
-            p2tlChartInstance.update();
+            p2tlChartInstance.destroy();
+            
+            const ctx = document.getElementById('p2tlChart').getContext('2d');
+            
+            let options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                }
+            };
+
+            if (type !== 'pie') {
+                options.scales = {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('id-ID') + ' kWh';
+                            }
+                        }
+                    }
+                };
+            }
+
+            p2tlChartInstance = new Chart(ctx, {
+                type: type,
+                data: { labels: labels, datasets: datasets },
+                options: options
+            });
         }
 
         function exportCSV() {
