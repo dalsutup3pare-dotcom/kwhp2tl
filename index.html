@@ -222,7 +222,8 @@
             </div>
 
             <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse whitespace-nowrap" id="main-table">
+                <!-- Catatan: Perhatikan tabel menggunakan class 'normal' agar tidak whitespace-nowrap mutlak di thead -->
+                <table class="w-full text-left border-collapse" id="main-table">
                     <thead id="table-head" class="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200">
                     </thead>
                     <tbody id="table-body" class="divide-y divide-slate-100 text-xs">
@@ -496,7 +497,7 @@
                     bulan: d ? d.getMonth() + 1 : parseNum(item.BULAN || 1),
                     hari: d ? d.getDate() : parseNum(item.HARI || 1),
                     unit: String(item.UNIT || item.ULP || '').trim().toUpperCase(),
-                    targetTahunan: parseNum(item["TARGET TAHUNAN"]),
+                    targetTahunan: parseNum(item["TARGET TAHUNAN"] || item["TARGET TAHUN"] || item["TARGET_TAHUNAN"] || 0),
                     targetBulanan: parseNum(item["TARGET BULAN"] || item["TARGET BULANAN"]),
                     targetMinggu: parseNum(item["TARGET MINGGU"]),
                     targetHarian: parseNum(item["TARGET HARI"] || item["TARGET HARIAN"]),
@@ -512,10 +513,10 @@
         }
 
         function getTargetUnit(unitName, bulanNum) {
-            const matchInMonth = dbP2TL.find(r => r.unit === unitName && r.bulan === bulanNum && r.targetBulanan > 0);
+            const matchInMonth = dbP2TL.find(r => r.unit === unitName && r.bulan === bulanNum && (r.targetBulanan > 0 || r.targetTahunan > 0));
             if (matchInMonth) return matchInMonth;
 
-            const matchAnywhere = dbP2TL.find(r => r.unit === unitName && r.targetBulanan > 0);
+            const matchAnywhere = dbP2TL.find(r => r.unit === unitName && (r.targetBulanan > 0 || r.targetTahunan > 0));
             if (matchAnywhere) return matchAnywhere;
 
             return { targetTahunan: 0, targetBulanan: 0, targetMinggu: 0, targetHarian: 0 };
@@ -551,7 +552,6 @@
             const mainTableContainer = document.getElementById('main-table-container');
             const lmTables = document.getElementById('lm-tables-container');
 
-            // Set Label dan Ikon KPI Card 1, 2, 3, 4 Dinamis
             const kpiTitle1 = document.getElementById('kpi-box-title-1');
             const kpiDesc1 = document.getElementById('kpi-box-desc-1');
             const kpiIcon1 = document.getElementById('kpi-box-icon-1');
@@ -597,7 +597,6 @@
                     kpiIcon4.innerHTML = `<i class="fa-solid fa-percent"></i>`;
                 }
             } else if (mode === 'pk') {
-                // REVISI SESUAI PERMINTAAN UNTUK MENU REALISASI P & K
                 if (kpiTitle1) kpiTitle1.innerText = "TOTAL REALISASI KWH (P+K)";
                 if (kpiDesc1) kpiDesc1.innerText = "Akumulasi Realisasi P & K";
                 if (kpiIcon1) {
@@ -707,7 +706,6 @@
             }
 
             if (currentMode === 'pk') {
-                // Sesuai permintaan: Realisasi K (kWh), tanpa minus, tidak berwarna merah (jadi warna ungu positif)
                 gapEl.innerText = Math.round(totalReal).toLocaleString('id-ID');
                 gapEl.className = "text-xl font-extrabold text-purple-600 mt-2";
                 gapIconEl.className = "bg-purple-100 text-purple-600 p-2 rounded-lg text-xs";
@@ -825,7 +823,7 @@
             ]);
         }
 
-        /* 2. MATRIKS BULANAN VIEW */
+        /* 2. MATRIKS BULANAN VIEW (Header diubah menjadi Wrap Text) */
         function renderMatriksView() {
             const filtered = getFilteredDataset();
             const selectedUnit = filterUnitEl.value;
@@ -834,22 +832,23 @@
 
             let dayCols = '';
             for (let d = 1; d <= 31; d++) {
-                dayCols += `<th class="px-2 py-2 text-center border-r border-slate-200 text-[10px]">${d}</th>`;
+                dayCols += `<th class="px-2 py-2 text-center border-r border-slate-200 text-[10px] w-10">${d}</th>`;
             }
 
             const thead = document.getElementById('table-head');
+            // Menghilangkan whitespace-nowrap pada th, menambahkan max-w, h-auto, dan leading-tight agar teks otomatis membungkus (wrap text)
             thead.innerHTML = `
-                <tr>
-                    <th class="px-3 py-3 border-r border-slate-200 bg-slate-200 font-extrabold">UNIT / ULP</th>
-                    <th class="px-3 py-3 text-right border-r border-slate-200 bg-blue-50">TARGET TAHUN</th>
-                    <th class="px-3 py-3 text-right border-r border-slate-200 bg-blue-50">TARGET BULAN</th>
-                    <th class="px-3 py-3 text-right border-r border-slate-200 bg-blue-50">TARGET MINGGU</th>
-                    <th class="px-3 py-3 text-right border-r border-slate-200 bg-blue-50">TARGET HARI</th>
+                <tr class="align-middle">
+                    <th class="px-3 py-3 border-r border-slate-200 bg-slate-200 font-extrabold w-28 whitespace-normal">UNIT / ULP</th>
+                    <th class="px-2 py-3 text-right border-r border-slate-200 bg-blue-50 whitespace-normal w-24">TARGET TAHUN</th>
+                    <th class="px-2 py-3 text-right border-r border-slate-200 bg-blue-50 whitespace-normal w-24">TARGET BULAN</th>
+                    <th class="px-2 py-3 text-right border-r border-slate-200 bg-blue-50 whitespace-normal w-24">TARGET MINGGU</th>
+                    <th class="px-2 py-3 text-right border-r border-slate-200 bg-blue-50 whitespace-normal w-24">TARGET HARI</th>
                     ${dayCols}
-                    <th class="px-3 py-3 text-right bg-emerald-100 border-r border-slate-200 text-emerald-950 font-extrabold">REALISASI BULAN INI (d.d)</th>
-                    <th class="px-3 py-3 text-right bg-emerald-100 border-r border-slate-200 text-emerald-950 font-extrabold">% ACH BULAN INI</th>
-                    <th class="px-3 py-3 text-right bg-indigo-100 border-r border-slate-200 text-indigo-950 font-extrabold">REALISASI KUMULATIF (s.d)</th>
-                    <th class="px-3 py-3 text-right bg-indigo-100 text-indigo-950 font-extrabold">% ACH KUMULATIF</th>
+                    <th class="px-2 py-3 text-right bg-emerald-100 border-r border-slate-200 text-emerald-950 font-extrabold whitespace-normal w-28">REALISASI BULAN INI (d.d)</th>
+                    <th class="px-2 py-3 text-right bg-emerald-100 border-r border-slate-200 text-emerald-950 font-extrabold whitespace-normal w-24">% ACH BULAN INI</th>
+                    <th class="px-2 py-3 text-right bg-indigo-100 border-r border-slate-200 text-indigo-950 font-extrabold whitespace-normal w-28">REALISASI KUMULATIF (s.d)</th>
+                    <th class="px-2 py-3 text-right bg-indigo-100 text-indigo-950 font-extrabold whitespace-normal w-24">% ACH KUMULATIF</th>
                 </tr>
             `;
 
@@ -866,7 +865,11 @@
                 const rows = filtered.filter(r => r.unit === u);
                 const targetObj = getTargetUnit(u, b);
 
-                const targetThn = targetObj.targetTahunan;
+                let targetThn = targetObj.targetTahunan;
+                if (targetThn === 0 && targetObj.targetBulanan > 0) {
+                    targetThn = targetObj.targetBulanan * 12;
+                }
+
                 const targetBln = targetObj.targetBulanan;
                 const targetMgg = targetObj.targetMinggu;
                 const targetHri = targetObj.targetHarian;
@@ -901,16 +904,16 @@
 
                 return `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                        <td class="px-3 py-2.5 font-bold text-slate-800 border-r border-slate-200 bg-slate-50">${u}</td>
-                        <td class="px-3 py-2.5 text-right font-mono border-r border-slate-200 text-slate-600">${Math.round(targetThn).toLocaleString('id-ID')}</td>
-                        <td class="px-3 py-2.5 text-right font-mono border-r border-slate-200 font-semibold text-slate-700">${Math.round(targetBln).toLocaleString('id-ID')}</td>
-                        <td class="px-3 py-2.5 text-right font-mono border-r border-slate-200 text-slate-600">${Math.round(targetMgg).toLocaleString('id-ID')}</td>
-                        <td class="px-3 py-2.5 text-right font-mono border-r border-slate-200 text-slate-600">${Math.round(targetHri).toLocaleString('id-ID')}</td>
+                        <td class="px-3 py-2.5 font-bold text-slate-800 border-r border-slate-200 bg-slate-50 whitespace-normal">${u}</td>
+                        <td class="px-2 py-2.5 text-right font-mono border-r border-slate-200 text-slate-600">${Math.round(targetThn).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-right font-mono border-r border-slate-200 font-semibold text-slate-700">${Math.round(targetBln).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-right font-mono border-r border-slate-200 text-slate-600">${Math.round(targetMgg).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-right font-mono border-r border-slate-200 text-slate-600">${Math.round(targetHri).toLocaleString('id-ID')}</td>
                         ${dayCells}
-                        <td class="px-3 py-2.5 text-right font-mono font-extrabold text-emerald-700 bg-emerald-50 border-r border-slate-200">${Math.round(rowSum).toLocaleString('id-ID')}</td>
-                        <td class="px-3 py-2.5 text-right font-mono font-extrabold ${achBulanIni >= 100 ? 'text-emerald-600' : 'text-amber-600'} bg-emerald-50/50 border-r border-slate-200">${achBulanIni.toFixed(2)}%</td>
-                        <td class="px-3 py-2.5 text-right font-mono font-extrabold text-indigo-700 bg-indigo-50 border-r border-slate-200">${Math.round(realisasiKumulatif).toLocaleString('id-ID')}</td>
-                        <td class="px-3 py-2.5 text-right font-mono font-extrabold ${achKumulatif >= 100 ? 'text-indigo-600' : 'text-purple-600'} bg-indigo-50/50">${achKumulatif.toFixed(2)}%</td>
+                        <td class="px-2 py-2.5 text-right font-mono font-extrabold text-emerald-700 bg-emerald-50 border-r border-slate-200">${Math.round(rowSum).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-right font-mono font-extrabold ${achBulanIni >= 100 ? 'text-emerald-600' : 'text-amber-600'} bg-emerald-50/50 border-r border-slate-200">${achBulanIni.toFixed(2)}%</td>
+                        <td class="px-2 py-2.5 text-right font-mono font-extrabold text-indigo-700 bg-indigo-50 border-r border-slate-200">${Math.round(realisasiKumulatif).toLocaleString('id-ID')}</td>
+                        <td class="px-2 py-2.5 text-right font-mono font-extrabold ${achKumulatif >= 100 ? 'text-indigo-600' : 'text-purple-600'} bg-indigo-50/50">${achKumulatif.toFixed(2)}%</td>
                     </tr>
                 `;
             }).join('');
@@ -926,16 +929,16 @@
 
             rowsHtml += `
                 <tr class="bg-slate-800 text-white font-extrabold">
-                    <td class="px-3 py-3 uppercase border-r border-slate-700">TOTAL UP3</td>
-                    <td class="px-3 py-3 text-right font-mono border-r border-slate-700 text-slate-200">${Math.round(grandTargetThn).toLocaleString('id-ID')}</td>
-                    <td class="px-3 py-3 text-right font-mono border-r border-slate-700 text-yellow-300">${Math.round(grandTargetBln).toLocaleString('id-ID')}</td>
-                    <td class="px-3 py-3 text-right font-mono border-r border-slate-700 text-slate-200">${Math.round(grandTargetMgg).toLocaleString('id-ID')}</td>
-                    <td class="px-3 py-3 text-right font-mono border-r border-slate-700 text-slate-200">${Math.round(grandTargetHri).toLocaleString('id-ID')}</td>
+                    <td class="px-3 py-3 uppercase border-r border-slate-700 whitespace-normal">TOTAL UP3</td>
+                    <td class="px-2 py-3 text-right font-mono border-r border-slate-700 text-slate-200">${Math.round(grandTargetThn).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono border-r border-slate-700 text-yellow-300">${Math.round(grandTargetBln).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono border-r border-slate-700 text-slate-200">${Math.round(grandTargetMgg).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono border-r border-slate-700 text-slate-200">${Math.round(grandTargetHri).toLocaleString('id-ID')}</td>
                     ${totalDayCells}
-                    <td class="px-3 py-3 text-right font-mono text-emerald-300 bg-slate-900 border-r border-slate-700 font-black">${Math.round(grandTotalMonth).toLocaleString('id-ID')}</td>
-                    <td class="px-3 py-3 text-right font-mono text-yellow-300 bg-slate-900 border-r border-slate-700 font-black">${totalAchBulan.toFixed(2)}%</td>
-                    <td class="px-3 py-3 text-right font-mono text-indigo-300 bg-slate-900 border-r border-slate-700 font-black">${Math.round(grandTotalKumulatif).toLocaleString('id-ID')}</td>
-                    <td class="px-3 py-3 text-right font-mono text-purple-300 bg-slate-900 font-black">${totalAchKumulatif.toFixed(2)}%</td>
+                    <td class="px-2 py-3 text-right font-mono text-emerald-300 bg-slate-900 border-r border-slate-700 font-black">${Math.round(grandTotalMonth).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono text-yellow-300 bg-slate-900 border-r border-slate-700 font-black">${totalAchBulan.toFixed(2)}%</td>
+                    <td class="px-2 py-3 text-right font-mono text-indigo-300 bg-slate-900 border-r border-slate-700 font-black">${Math.round(grandTotalKumulatif).toLocaleString('id-ID')}</td>
+                    <td class="px-2 py-3 text-right font-mono text-purple-300 bg-slate-900 font-black">${totalAchKumulatif.toFixed(2)}%</td>
                 </tr>
             `;
 
@@ -1279,7 +1282,7 @@
             ], 'pie');
         }
 
-        /* 6. REALISASI P & K VIEW (DENGAN REVISI KARTU KPI) */
+        /* 6. REALISASI P & K VIEW */
         function renderPKView() {
             const selectedUnit = filterUnitEl.value;
             const startMonth = parseInt(filterBulanAwalEl.value);
@@ -1306,13 +1309,9 @@
             const totalRealK = rowData.reduce((s, r) => s + r.realK, 0);
             const totalRealAll = totalRealP + totalRealK;
 
-            // Box 1: TOTAL REALISASI KWH (P+K)
             document.getElementById('kpi-target').innerText = Math.round(totalRealAll).toLocaleString('id-ID');
-            // Box 2: REALISASI P (kWh)
             document.getElementById('kpi-realisasi').innerText = Math.round(totalRealP).toLocaleString('id-ID');
-            // Box 3: REALISASI K (kWh) -> Positif, tanpa minus, tidak merah
             updateGapKPI(0, totalRealK);
-            // Box 4: TOTAL PELANGGAN
             document.getElementById('kpi-percentage').innerText = totalPelAll.toLocaleString('id-ID');
 
             const thead = document.getElementById('table-head');
@@ -1462,9 +1461,9 @@
                         <td class="px-4 py-2.5 uppercase border-r border-slate-700 font-sans">TOTAL UP3</td>
                         <td class="px-3 py-2.5 text-right border-r border-slate-700 text-yellow-300">${Math.round(grandTargetWeek).toLocaleString('id-ID')}</td>
                         ${totalDailyCells}
-                        <td class="px-3 py-2.5 text-right border-r border-slate-700 bg-slate-900 text-emerald-300 font-black">${Math.round(grandTotalWeek).toLocaleString('id-ID')}</td>
-                        <td class="px-3 py-2.5 text-right border-r border-slate-700 bg-slate-900 text-rose-300">${Math.round(totalGapM).toLocaleString('id-ID')}</td>
-                        <td class="px-3 py-2.5 text-right bg-slate-900 text-yellow-400 font-black">${totalAchM.toFixed(1)}%</td>
+                        <td class="px-4 py-2.5 text-right border-r border-slate-700 bg-slate-900 text-emerald-300 font-black">${Math.round(grandTotalWeek).toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-2.5 text-right border-r border-slate-700 bg-slate-900 text-rose-300">${Math.round(totalGapM).toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-2.5 text-right bg-slate-900 text-yellow-400 font-black">${totalAchM.toFixed(1)}%</td>
                     </tr>
                 `;
 
