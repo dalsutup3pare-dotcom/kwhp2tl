@@ -385,6 +385,8 @@
         let dbP2TL = [];
         let currentMode = 'harian';
         let p2tlChartInstance = null;
+	let currentSortColumn = null;
+	let isAscending = true;
 
         const filterBulanEl = document.getElementById('filterBulan');
         const filterHariEl = document.getElementById('filterHari');
@@ -786,9 +788,9 @@
                     <th class="px-4 py-3">UNIT / ULP</th>
                     <th class="px-4 py-3 text-right">TARGET HARI</th>
                     <th class="px-4 py-3 text-right">${targetColLabel}</th>
-                    <th class="px-4 py-3 text-right">${realColLabel}</th>
-                    <th class="px-4 py-3 text-right">GAP (KWH)</th>
-                    <th class="px-4 py-3 text-right">CAPAIAN (%)</th>
+                    <th onclick="sortTable(0)" class="px-4 py-3 text-right">${realColLabel}</th>
+                    <th onclick="sortTable(1)" class="px-4 py-3 text-right">GAP (KWH)</th>
+                    <th onclick="sortTable(2)" class="px-4 py-3 text-right">CAPAIAN (%)</th>
                 </tr>
             `;
 
@@ -1245,11 +1247,11 @@
             const thead = document.getElementById('table-head');
             thead.innerHTML = `
                 <tr>
-                    <th class="px-4 py-3">UNIT / ULP</th>
-                    <th class="px-4 py-3 text-right">REALISASI PJU (KWH)</th>
-                    <th class="px-4 py-3 text-right">REALISASI NON PJU (KWH)</th>
-                    <th class="px-4 py-3 text-right">TOTAL REALISASI (KWH)</th>
-                    <th class="px-4 py-3 text-right">% PORSI PJU</th>
+                    <th onclick="sortTable(0, 'pju')" class="px-4 py-3">UNIT / ULP</th>
+                    <th onclick="sortTable(1, 'pju')" class="px-4 py-3 text-right">REALISASI PJU (KWH)</th>
+                    <th onclick="sortTable(2, 'pju')" class="px-4 py-3 text-right">REALISASI NON PJU (KWH)</th>
+                    <th onclick="sortTable(3, 'pju')" class="px-4 py-3 text-right">TOTAL REALISASI (KWH)</th>
+                    <th onclick="sortTable(4, 'pju')" class="px-4 py-3 text-right">% PORSI PJU</th>
                 </tr>
             `;
 
@@ -1317,18 +1319,18 @@
             const thead = document.getElementById('table-head');
             thead.innerHTML = `
                 <tr>
-                    <th class="px-3 py-3 text-left" rowspan="2">UNIT / ULP</th>
-                    <th class="px-3 py-2 text-center bg-indigo-50 border-r" colspan="3">JUMLAH PELANGGAN (P & K)</th>
-                    <th class="px-3 py-2 text-center bg-teal-50 border-r" colspan="3">REALISASI KWH (P & K)</th>
+                    <th onclick="sortTable(0, 'pk')" class="px-3 py-3 text-left" rowspan="2">UNIT / ULP</th>
+                    <th onclick="sortTable(1, 'pk')" class="px-3 py-2 text-center bg-indigo-50 border-r" colspan="3">JUMLAH PELANGGAN (P & K)</th>
+                    <th onclick="sortTable(2, 'pk')" class="px-3 py-2 text-center bg-teal-50 border-r" colspan="3">REALISASI KWH (P & K)</th>
                 </tr>
                 <tr class="text-xs">
-                    <th class="px-2 py-1 text-right bg-indigo-50">P</th>
-                    <th class="px-2 py-1 text-right bg-indigo-50">K</th>
-                    <th class="px-2 py-1 text-right bg-indigo-100/70 border-r font-bold">TOTAL P+K</th>
+                    <th onclick="sortTable(3, 'pk')" class="px-2 py-1 text-right bg-indigo-50">P</th>
+                    <th onclick="sortTable(4, 'pk')" class="px-2 py-1 text-right bg-indigo-50">K</th>
+                    <th onclick="sortTable(5, 'pk')" class="px-2 py-1 text-right bg-indigo-100/70 border-r font-bold">TOTAL P+K</th>
                     
-                    <th class="px-2 py-1 text-right bg-teal-50">REALISASI P</th>
-                    <th class="px-2 py-1 text-right bg-teal-50">REALISASI K</th>
-                    <th class="px-2 py-1 text-right bg-teal-100/70 font-black text-teal-900">TOTAL REALISASI</th>
+                    <th onclick="sortTable(6, 'pk')" class="px-2 py-1 text-right bg-teal-50">REALISASI P</th>
+                    <th onclick="sortTable(7, 'pk')" class="px-2 py-1 text-right bg-teal-50">REALISASI K</th>
+                    <th onclick="sortTable(8, 'pk')" class="px-2 py-1 text-right bg-teal-100/70 font-black text-teal-900">TOTAL REALISASI</th>
                 </tr>
             `;
 
@@ -1539,6 +1541,78 @@
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
+
+function sortTable(columnIndex, modeType) {
+    const table = document.getElementById("main-table");
+    const tbody = table.querySelector("tbody");
+    let rows = Array.from(tbody.querySelectorAll("tr"));
+
+    // Jika baris kosong atau hanya ada baris pesan "Tidak ada data"
+    if (rows.length === 0 || rows[0].querySelector("td.text-center")) return;
+
+    // === LANGKAH TAMBAHAN: AMANKAN BARIS TOTAL ===
+    // Asumsinya baris total memiliki teks "TOTAL" atau kelas/atribut khusus.
+    // Atau jika baris total selalu berada di baris paling bawah:
+    let totalRow = null;
+    const lastRow = rows[rows.length - 1];
+    
+    // Cek apakah baris terakhir adalah baris total (berdasarkan teks "TOTAL" di kolom pertama)
+    if (lastRow && lastRow.cells[0].innerText.toUpperCase().includes("TOTAL")) {
+        totalRow = rows.pop(); // Keluarkan baris terakhir dari array sorting
+    }
+    // =============================================
+
+    // Toggle arah pengurutan (ascending / descending)
+    if (currentSortColumn === columnIndex) {
+        isAscending = !isAscending;
+    } else {
+        currentSortColumn = columnIndex;
+        isAscending = true;
+    }
+
+    // Urutkan sisa baris data
+    rows.sort((rowA, rowB) => {
+        const cellA = rowA.querySelectorAll("td")[columnIndex].innerText.trim();
+        const cellB = rowB.querySelectorAll("td")[columnIndex].innerText.trim();
+
+        const cleanA = parseFloat(cellA.replace(/\./g, '').replace(',', '.').replace('%', ''));
+        const cleanB = parseFloat(cellB.replace(/\./g, '').replace(',', '.').replace('%', ''));
+
+        if (!isNaN(cleanA) && !isNaN(cleanB)) {
+            return isAscending ? cleanA - cleanB : cleanB - cleanA;
+        } else {
+            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+        }
+    });
+
+    // Masukkan kembali baris data yang sudah diurutkan ke dalam tbody
+    rows.forEach(row => tbody.appendChild(row));
+
+    // === KEMBALIKAN BARIS TOTAL KE POSISI PALING BAWAH ===
+    if (totalRow) {
+        tbody.appendChild(totalRow);
+    }
+    // =================================================
+
+    // Perbarui ikon indikator sort di header
+    updateSortIcons(modeType, columnIndex);
+}
+
+function updateSortIcons(modeType, activeIndex) {
+    const headers = document.querySelectorAll("#main-table th");
+    headers.forEach((th, idx) => {
+        const icon = th.querySelector("i");
+        if (icon) {
+            if (idx === activeIndex) {
+                icon.className = isAscending 
+                    ? "fa-solid fa-sort-up text-blue-600 text-[11px] ml-1" 
+                    : "fa-solid fa-sort-down text-blue-600 text-[11px] ml-1";
+            } else {
+                icon.className = "fa-solid fa-sort text-slate-400 text-[10px] ml-1";
+            }
+        }
+    });
+}
     </script>
 </body>
 </html>
