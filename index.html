@@ -788,9 +788,9 @@
                     <th class="px-4 py-3">UNIT / ULP</th>
                     <th class="px-4 py-3 text-right">TARGET HARI</th>
                     <th class="px-4 py-3 text-right">${targetColLabel}</th>
-                    <th onclick="sortTable(0)" class="px-4 py-3 text-right">${realColLabel}</th>
-                    <th onclick="sortTable(1)" class="px-4 py-3 text-right">GAP (KWH)</th>
-                    <th onclick="sortTable(2)" class="px-4 py-3 text-right">CAPAIAN (%)</th>
+                    <th class="px-4 py-3 text-right">${realColLabel}</th>
+                    <th class="px-4 py-3 text-right">GAP (KWH)</th>
+                    <th class="px-4 py-3 text-right">CAPAIAN (%)</th>
                 </tr>
             `;
 
@@ -1320,17 +1320,17 @@
             thead.innerHTML = `
                 <tr>
                     <th onclick="sortTable(0, 'pk')" class="px-3 py-3 text-left" rowspan="2">UNIT / ULP</th>
-                    <th onclick="sortTable(1, 'pk')" class="px-3 py-2 text-center bg-indigo-50 border-r" colspan="3">JUMLAH PELANGGAN (P & K)</th>
-                    <th onclick="sortTable(2, 'pk')" class="px-3 py-2 text-center bg-teal-50 border-r" colspan="3">REALISASI KWH (P & K)</th>
+                    <th class="px-3 py-2 text-center bg-indigo-50 border-r" colspan="3">JUMLAH PELANGGAN (P & K)</th>
+                    <th class="px-3 py-2 text-center bg-teal-50 border-r" colspan="3">REALISASI KWH (P & K)</th>
                 </tr>
                 <tr class="text-xs">
-                    <th onclick="sortTable(3, 'pk')" class="px-2 py-1 text-right bg-indigo-50">P</th>
-                    <th onclick="sortTable(4, 'pk')" class="px-2 py-1 text-right bg-indigo-50">K</th>
-                    <th onclick="sortTable(5, 'pk')" class="px-2 py-1 text-right bg-indigo-100/70 border-r font-bold">TOTAL P+K</th>
+                    <th onclick="sortTable(1, 'pk')" class="px-2 py-1 text-right bg-indigo-50">P</th>
+                    <th onclick="sortTable(2, 'pk')" class="px-2 py-1 text-right bg-indigo-50">K</th>
+                    <th onclick="sortTable(3, 'pk')" class="px-2 py-1 text-right bg-indigo-100/70 border-r font-bold">TOTAL P+K</th>
                     
-                    <th onclick="sortTable(6, 'pk')" class="px-2 py-1 text-right bg-teal-50">REALISASI P</th>
-                    <th onclick="sortTable(7, 'pk')" class="px-2 py-1 text-right bg-teal-50">REALISASI K</th>
-                    <th onclick="sortTable(8, 'pk')" class="px-2 py-1 text-right bg-teal-100/70 font-black text-teal-900">TOTAL REALISASI</th>
+                    <th onclick="sortTable(4, 'pk')" class="px-2 py-1 text-right bg-teal-50">REALISASI P</th>
+                    <th onclick="sortTable(5, 'pk')" class="px-2 py-1 text-right bg-teal-50">REALISASI K</th>
+                    <th onclick="sortTable(6, 'pk')" class="px-2 py-1 text-right bg-teal-100/70 font-black text-teal-900">TOTAL REALISASI</th>
                 </tr>
             `;
 
