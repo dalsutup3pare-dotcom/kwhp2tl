@@ -371,6 +371,45 @@
             </div>
         </div>
 
+       <!-- CONTAINER HARIAN PJU NON PJU -->
+        <div id="pju-daily-container" class="hidden space-y-6">
+<!-- Container 1: Tabel Realisasi PJU -->
+<div class="overflow-x-auto bg-white rounded-lg shadow border border-gray-200 mb-6">
+    <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-700">Realisasi Harian - PJU (Penerangan Jalan Umum)</h3>
+        <span class="text-sm text-gray-500" id="pju-periode-label">Periode Berjalan</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-xs">
+            <thead class="bg-gray-100 text-gray-700 uppercase font-bold" id="pju-table-head">
+                <!-- Header 1-31 digenerate otomatis -->
+            </thead>
+            <tbody id="pju-table-body" class="divide-y divide-gray-200 text-gray-600">
+                <!-- Baris data PJU masuk ke sini -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Container 2: Tabel Realisasi NON PJU -->
+<div class="overflow-x-auto bg-white rounded-lg shadow border border-gray-200 mb-6">
+    <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-700">Realisasi Harian - NON PJU</h3>
+        <span class="text-sm text-gray-500" id="non-pju-periode-label">Periode Berjalan</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-xs">
+            <thead class="bg-gray-100 text-gray-700 uppercase font-bold" id="non-pju-table-head">
+                <!-- Header 1-31 digenerate otomatis -->
+            </thead>
+            <tbody id="non-pju-table-body" class="divide-y divide-gray-200 text-gray-600">
+                <!-- Baris data NON PJU masuk ke sini -->
+            </tbody>
+        </table>
+    </div>
+</div>
+	</div>
+
     </main>
 
     <script>
@@ -553,6 +592,7 @@
 
             const mainTableContainer = document.getElementById('main-table-container');
             const lmTables = document.getElementById('lm-tables-container');
+	    const PJUdaily = document.getElementById('pju-daily-container');
 
             const kpiTitle1 = document.getElementById('kpi-box-title-1');
             const kpiDesc1 = document.getElementById('kpi-box-desc-1');
@@ -672,12 +712,18 @@
 
             if (mode === 'lm') {
                 mainTableContainer.classList.add('hidden');
+		PJUdaily.classList.add('hidden');
                 lmTables.classList.remove('hidden');
             } else {
                 mainTableContainer.classList.remove('hidden');
+		PJUdaily.classList.add('hidden');
                 lmTables.classList.add('hidden');
             }
-
+	   if (mode === 'pju') {
+                mainTableContainer.classList.remove('hidden');
+		PJUdaily.classList.remove('hidden');
+                lmTables.classList.add('hidden');
+            }
             renderDashboard();
         }
 
@@ -733,7 +779,10 @@
             else if (currentMode === 'matriks') renderMatriksView();
             else if (currentMode === 'range') renderRangeView();
             else if (currentMode === 'lm') renderLMView();
-            else if (currentMode === 'pju') renderPJUView();
+  	    else if (currentMode === 'pju') {
+        	renderPJUView();
+        	renderPjuNonPjuTables(); // <--- Tambahkan pemanggilan di sini agar tabel ikut terisi
+    	    }
             else if (currentMode === 'pk') renderPKView();
         }
 
@@ -1612,6 +1661,69 @@ function updateSortIcons(modeType, activeIndex) {
             }
         }
     });
+}
+
+// Fungsi pembantu untuk membuat header tabel (Unit + Tanggal 1 s.d 31 + Total)
+function generateTableHead(headElementId) {
+    let headHtml = `<tr>
+        <th class="px-3 py-2 text-left sticky left-0 bg-gray-100 z-10 border-r">Unit ULP</th>`;
+    for (let i = 1; i <= 31; i++) {
+        headHtml += `<th class="px-2 py-2 text-center border-r min-w-[35px]">${i}</th>`;
+    }
+    headHtml += `<th class="px-3 py-2 text-center bg-gray-200 sticky right-0 z-10">Total</th></tr>`;
+    document.getElementById(headElementId).innerHTML = headHtml;
+}
+
+// Fungsi utama untuk merender tabel harian PJU dan Non-PJU berdasarkan dbP2TL
+function renderPjuNonPjuTables() {
+    // Ambil nilai filter bulan dan unit yang sedang aktif di UI
+    const selectedMonth = filterBulanEl ? parseInt(filterBulanEl.value) : (new Date().getMonth() + 1);
+    const selectedUnit = filterUnitEl ? filterUnitEl.value : 'ALL';
+    
+    // Gunakan daftar unit global (huruf kapital agar cocok dengan parseRawData)
+    const unitsToRender = selectedUnit === 'ALL' ? unitsList : [selectedUnit];
+
+    // 1. Render Header untuk kedua tabel
+    generateTableHead('pju-table-head');
+    generateTableHead('non-pju-table-head');
+
+    // 2. Render Body Tabel PJU Harian
+    let pjuBodyHtml = '';
+    unitsToRender.forEach(unit => {
+        let rowHtml = `<tr><td class="px-3 py-2 font-medium text-gray-800 sticky left-0 bg-white border-r">${unit}</td>`;
+        let totalUnit = 0;
+
+        for (let day = 1; day <= 31; day++) {
+            // Cari data yang cocok berdasarkan unit, bulan, dan hari (tanggal) dari dbP2TL
+            const match = dbP2TL.find(r => r.unit === unit && r.bulan === selectedMonth && r.hari === day);
+            let val = match ? match.pjuRealisasi : 0;
+            
+            totalUnit += val;
+            rowHtml += `<td class="px-2 py-2 text-center border-r">${val > 0 ? val.toLocaleString('id-ID') : '-'}</td>`;
+        }
+        rowHtml += `<td class="px-3 py-2 text-center font-bold bg-gray-50 sticky right-0">${totalUnit > 0 ? totalUnit.toLocaleString('id-ID') : '0'}</td></tr>`;
+        pjuBodyHtml += rowHtml;
+    });
+    document.getElementById('pju-table-body').innerHTML = pjuBodyHtml;
+
+    // 3. Render Body Tabel NON PJU Harian
+    let nonPjuBodyHtml = '';
+    unitsToRender.forEach(unit => {
+        let rowHtml = `<tr><td class="px-3 py-2 font-medium text-gray-800 sticky left-0 bg-white border-r">${unit}</td>`;
+        let totalUnit = 0;
+
+        for (let day = 1; day <= 31; day++) {
+            // Cari data yang cocok berdasarkan unit, bulan, dan hari (tanggal) dari dbP2TL
+            const match = dbP2TL.find(r => r.unit === unit && r.bulan === selectedMonth && r.hari === day);
+            let val = match ? match.nonPjuRealisasi : 0;
+            
+            totalUnit += val;
+            rowHtml += `<td class="px-2 py-2 text-center border-r">${val > 0 ? val.toLocaleString('id-ID') : '-'}</td>`;
+        }
+        rowHtml += `<td class="px-3 py-2 text-center font-bold bg-gray-50 sticky right-0">${totalUnit > 0 ? totalUnit.toLocaleString('id-ID') : '0'}</td></tr>`;
+        nonPjuBodyHtml += rowHtml;
+    });
+    document.getElementById('non-pju-table-body').innerHTML = nonPjuBodyHtml;
 }
     </script>
 </body>
