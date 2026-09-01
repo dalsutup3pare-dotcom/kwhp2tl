@@ -373,38 +373,30 @@
 
        <!-- CONTAINER HARIAN PJU NON PJU -->
         <div id="pju-daily-container" class="hidden space-y-6">
-<!-- Container 1: Tabel Realisasi PJU -->
-<div class="overflow-x-auto bg-white rounded-lg shadow border border-gray-200 mb-6">
-    <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-        <h3 class="text-lg font-semibold text-gray-700">Realisasi Harian - PJU (Penerangan Jalan Umum)</h3>
-        <span class="text-sm text-gray-500" id="pju-periode-label">Periode Berjalan</span>
+<!-- Kontainer Tabel PJU Harian -->
+<div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden mb-6">
+    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800 text-sm md:text-base">Realisasi Harian - PJU (Penerangan Jalan Umum)</h3>
+        <span class="text-xs bg-blue-100 text-blue-700 font-semibold px-2.5 py-1 rounded-full">UP3 Parepare</span>
     </div>
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-xs">
-            <thead class="bg-gray-100 text-gray-700 uppercase font-bold" id="pju-table-head">
-                <!-- Header 1-31 digenerate otomatis -->
-            </thead>
-            <tbody id="pju-table-body" class="divide-y divide-gray-200 text-gray-600">
-                <!-- Baris data PJU masuk ke sini -->
-            </tbody>
+        <table class="w-full text-xs md:text-sm text-left border-collapse">
+            <thead id="pju-table-head" class="bg-slate-100 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200"></thead>
+            <tbody id="pju-table-body" class="divide-y divide-slate-100 text-slate-600"></tbody>
         </table>
     </div>
 </div>
 
-<!-- Container 2: Tabel Realisasi NON PJU -->
-<div class="overflow-x-auto bg-white rounded-lg shadow border border-gray-200 mb-6">
-    <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-        <h3 class="text-lg font-semibold text-gray-700">Realisasi Harian - NON PJU</h3>
-        <span class="text-sm text-gray-500" id="non-pju-periode-label">Periode Berjalan</span>
+<!-- Kontainer Tabel NON PJU Harian -->
+<div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden mb-6">
+    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800 text-sm md:text-base">Realisasi Harian - NON PJU</h3>
+        <span class="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2.5 py-1 rounded-full">UP3 Parepare</span>
     </div>
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-xs">
-            <thead class="bg-gray-100 text-gray-700 uppercase font-bold" id="non-pju-table-head">
-                <!-- Header 1-31 digenerate otomatis -->
-            </thead>
-            <tbody id="non-pju-table-body" class="divide-y divide-gray-200 text-gray-600">
-                <!-- Baris data NON PJU masuk ke sini -->
-            </tbody>
+        <table class="w-full text-xs md:text-sm text-left border-collapse">
+            <thead id="non-pju-table-head" class="bg-slate-100 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200"></thead>
+            <tbody id="non-pju-table-body" class="divide-y divide-slate-100 text-slate-600"></tbody>
         </table>
     </div>
 </div>
@@ -524,31 +516,50 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
-        function parseRawData(rawArray) {
+function parseRawData(rawArray) {
             return rawArray.map(item => {
                 let d = null;
+                let bVal = parseNum(item.BULAN || item.Bulan || 0);
+                let hVal = parseNum(item.HARI || item.Hari || item.TANGGAL_HARI || 0);
+
                 if (item.TANGGAL) {
                     d = new Date(item.TANGGAL);
-                    if (isNaN(d.getTime())) d = null;
+                    if (!isNaN(d.getTime())) {
+                        bVal = d.getMonth() + 1;
+                        hVal = d.getDate();
+                    } else {
+                        // Coba tangani jika format tanggal string sederhana (misal: "2026-01-15" atau "15/01/2026")
+                        let parts = String(item.TANGGAL).split(/[-/]/);
+                        if (parts.length === 3) {
+                            // Asumsi format YYYY-MM-DD atau DD-MM-YYYY
+                            if (parts[0].length === 4) {
+                                bVal = parseInt(parts[1]);
+                                hVal = parseInt(parts[2]);
+                            } else {
+                                hVal = parseInt(parts[0]);
+                                bVal = parseInt(parts[1]);
+                            }
+                        }
+                    }
                 }
 
                 return {
                     tanggalStr: item.TANGGAL || '',
                     dateObj: d,
-                    bulan: d ? d.getMonth() + 1 : parseNum(item.BULAN || 1),
-                    hari: d ? d.getDate() : parseNum(item.HARI || 1),
+                    bulan: bVal || 1,
+                    hari: hVal || 1,
                     unit: String(item.UNIT || item.ULP || '').trim().toUpperCase(),
                     targetTahunan: parseNum(item["TARGET TAHUNAN"] || item["TARGET TAHUN"] || item["TARGET_TAHUNAN"] || 0),
-                    targetBulanan: parseNum(item["TARGET BULAN"] || item["TARGET BULANAN"]),
-                    targetMinggu: parseNum(item["TARGET MINGGU"]),
-                    targetHarian: parseNum(item["TARGET HARI"] || item["TARGET HARIAN"]),
-                    kwhRealisasi: parseNum(item["REALISASI"] || item["REALISASI KWH"]),
-                    pjuRealisasi: parseNum(item["PJU"]),
-                    nonPjuRealisasi: parseNum(item["NON PJU"]),
-                    pelangganP: parseNum(item["P"]),
-                    pelangganK: parseNum(item["K"]),
-                    realisasiP: parseNum(item["REALISASI P"]),
-                    realisasiK: parseNum(item["REALISASI K"])
+                    targetBulanan: parseNum(item["TARGET BULAN"] || item["TARGET BULANAN"] || 0),
+                    targetMinggu: parseNum(item["TARGET MINGGU"] || 0),
+                    targetHarian: parseNum(item["TARGET HARI"] || item["TARGET HARIAN"] || 0),
+                    kwhRealisasi: parseNum(item["REALISASI"] || item["REALISASI KWH"] || 0),
+                    pjuRealisasi: parseNum(item["PJU"] || item["PJU (KWH)"] || item["REALISASI PJU"] || 0),
+                    nonPjuRealisasi: parseNum(item["NON PJU"] || item["NON_PJU"] || item["REALISASI NON PJU"] || 0),
+                    pelangganP: parseNum(item["P"] || item["PELANGGAN P"] || 0),
+                    pelangganK: parseNum(item["K"] || item["PELANGGAN K"] || 0),
+                    realisasiP: parseNum(item["REALISASI P"] || 0),
+                    realisasiK: parseNum(item["REALISASI K"] || 0)
                 };
             });
         }
@@ -1666,61 +1677,68 @@ function updateSortIcons(modeType, activeIndex) {
 // Fungsi pembantu untuk membuat header tabel (Unit + Tanggal 1 s.d 31 + Total)
 function generateTableHead(headElementId) {
     let headHtml = `<tr>
-        <th class="px-3 py-2 text-left sticky left-0 bg-gray-100 z-10 border-r">Unit ULP</th>`;
+        <th class="px-3 py-3 text-left sticky left-0 bg-slate-100 z-10 border-r">Unit ULP</th>`;
     for (let i = 1; i <= 31; i++) {
-        headHtml += `<th class="px-2 py-2 text-center border-r min-w-[35px]">${i}</th>`;
+        headHtml += `<th class="px-2 py-3 text-center border-r min-w-[35px]">${i}</th>`;
     }
-    headHtml += `<th class="px-3 py-2 text-center bg-gray-200 sticky right-0 z-10">Total</th></tr>`;
+    headHtml += `<th class="px-3 py-3 text-center bg-slate-200 sticky right-0 z-10">Total</th></tr>`;
     document.getElementById(headElementId).innerHTML = headHtml;
 }
 
 // Fungsi utama untuk merender tabel harian PJU dan Non-PJU berdasarkan dbP2TL
 function renderPjuNonPjuTables() {
-    // Ambil nilai filter bulan dan unit yang sedang aktif di UI
-    const selectedMonth = filterBulanEl ? parseInt(filterBulanEl.value) : (new Date().getMonth() + 1);
+    // Ambil nilai filter unit yang sedang aktif di UI
     const selectedUnit = filterUnitEl ? filterUnitEl.value : 'ALL';
+    
+    // Ambil nilai range bulan (Awal & Akhir) dari elemen UI
+    const startMonth = filterBulanAwalEl ? parseInt(filterBulanAwalEl.value) : 1;
+    const endMonth = filterBulanAkhirEl ? parseInt(filterBulanAkhirEl.value) : 12;
     
     // Gunakan daftar unit global (huruf kapital agar cocok dengan parseRawData)
     const unitsToRender = selectedUnit === 'ALL' ? unitsList : [selectedUnit];
 
-    // 1. Render Header untuk kedua tabel
+    // 1. Render Header untuk kedua tabel (Tanggal 1 s.d 31)
     generateTableHead('pju-table-head');
     generateTableHead('non-pju-table-head');
 
-    // 2. Render Body Tabel PJU Harian
+    // 2. Render Body Tabel PJU Harian (Akumulasi berdasarkan range bulan yang dipilih)
     let pjuBodyHtml = '';
     unitsToRender.forEach(unit => {
-        let rowHtml = `<tr><td class="px-3 py-2 font-medium text-gray-800 sticky left-0 bg-white border-r">${unit}</td>`;
+        let rowHtml = `<tr class="hover:bg-slate-50 transition-colors"><td class="px-3 py-2 font-medium text-slate-800 sticky left-0 bg-white border-r">${unit}</td>`;
         let totalUnit = 0;
 
         for (let day = 1; day <= 31; day++) {
-            // Cari data yang cocok berdasarkan unit, bulan, dan hari (tanggal) dari dbP2TL
-            const match = dbP2TL.find(r => r.unit === unit && r.bulan === selectedMonth && r.hari === day);
-            let val = match ? match.pjuRealisasi : 0;
+            // Filter data berdasarkan unit, hari (tanggal), dan rentang bulan (startMonth sampai endMonth)
+            const matches = dbP2TL.filter(r => r.unit === unit && r.bulan >= startMonth && r.bulan <= endMonth && r.hari === day);
+            
+            // Jumlahkan nilai PJU jika ada beberapa bulan dalam range yang sama di tanggal tersebut
+            let val = matches.reduce((sum, r) => sum + r.pjuRealisasi, 0);
             
             totalUnit += val;
             rowHtml += `<td class="px-2 py-2 text-center border-r">${val > 0 ? val.toLocaleString('id-ID') : '-'}</td>`;
         }
-        rowHtml += `<td class="px-3 py-2 text-center font-bold bg-gray-50 sticky right-0">${totalUnit > 0 ? totalUnit.toLocaleString('id-ID') : '0'}</td></tr>`;
+        rowHtml += `<td class="px-3 py-2 text-center font-bold bg-slate-50 sticky right-0">${totalUnit > 0 ? totalUnit.toLocaleString('id-ID') : '0'}</td></tr>`;
         pjuBodyHtml += rowHtml;
     });
     document.getElementById('pju-table-body').innerHTML = pjuBodyHtml;
 
-    // 3. Render Body Tabel NON PJU Harian
+    // 3. Render Body Tabel NON PJU Harian (Akumulasi berdasarkan range bulan yang dipilih)
     let nonPjuBodyHtml = '';
     unitsToRender.forEach(unit => {
-        let rowHtml = `<tr><td class="px-3 py-2 font-medium text-gray-800 sticky left-0 bg-white border-r">${unit}</td>`;
+        let rowHtml = `<tr class="hover:bg-slate-50 transition-colors"><td class="px-3 py-2 font-medium text-slate-800 sticky left-0 bg-white border-r">${unit}</td>`;
         let totalUnit = 0;
 
         for (let day = 1; day <= 31; day++) {
-            // Cari data yang cocok berdasarkan unit, bulan, dan hari (tanggal) dari dbP2TL
-            const match = dbP2TL.find(r => r.unit === unit && r.bulan === selectedMonth && r.hari === day);
-            let val = match ? match.nonPjuRealisasi : 0;
+            // Filter data berdasarkan unit, hari (tanggal), dan rentang bulan (startMonth sampai endMonth)
+            const matches = dbP2TL.filter(r => r.unit === unit && r.bulan >= startMonth && r.bulan <= endMonth && r.hari === day);
+            
+            // Jumlahkan nilai Non PJU jika ada beberapa bulan dalam range yang sama di tanggal tersebut
+            let val = matches.reduce((sum, r) => sum + r.nonPjuRealisasi, 0);
             
             totalUnit += val;
             rowHtml += `<td class="px-2 py-2 text-center border-r">${val > 0 ? val.toLocaleString('id-ID') : '-'}</td>`;
         }
-        rowHtml += `<td class="px-3 py-2 text-center font-bold bg-gray-50 sticky right-0">${totalUnit > 0 ? totalUnit.toLocaleString('id-ID') : '0'}</td></tr>`;
+        rowHtml += `<td class="px-3 py-2 text-center font-bold bg-slate-50 sticky right-0">${totalUnit > 0 ? totalUnit.toLocaleString('id-ID') : '0'}</td></tr>`;
         nonPjuBodyHtml += rowHtml;
     });
     document.getElementById('non-pju-table-body').innerHTML = nonPjuBodyHtml;
