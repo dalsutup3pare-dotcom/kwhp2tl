@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Monitoring Pencapaian kWh P2TL</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk membaca file Excel di browser -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -30,6 +32,14 @@
                     <p class="text-xs text-slate-400 font-medium">PT PLN (PERSERO) UP3 PAREPARE</p>
                 </div>
             </div>
+
+<!-- TOMBOL UPLOAD EXCEL -->
+<div class="flex items-center space-x-2 border-l border-slate-600 pl-4">
+  <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(event)">
+  <label for="excelFile" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded cursor-pointer transition flex items-center space-x-1">
+    <span>📂 Upload TS AP2T</span>
+  </label>
+</div>
 
             <div class="flex flex-wrap items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
                 <div class="flex items-center space-x-1 pl-2 pr-1">
@@ -84,6 +94,7 @@
                 <i class="fa-solid fa-users-viewfinder"></i> Realisasi P & K
             </button>
         </div>
+
 
         <!-- CONTAINER FILTER -->
         <div id="tab-month-container" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-4">
@@ -378,7 +389,7 @@
     <div class="bg-white rounded-xl border border-slate-700 shadow-xl overflow-hidden">
         <div class="px-4 py-3 bg-[#1e232a] text-white flex justify-between items-center border-b border-slate-700">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100">REALISASI HARIAN - PJU (PENERANGAN JALAN UMUM)</h3>
-            <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">BULAN: AGUSTUS 2026</span>
+            <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">🚦</span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-xs text-left border-collapse">
@@ -393,7 +404,7 @@
     <div class="bg-white rounded-xl border border-slate-700 shadow-xl overflow-hidden">
         <div class="px-4 py-3 bg-[#1e232a] text-white flex justify-between items-center border-b border-slate-700">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100">REALISASI HARIAN - NON PJU</h3>
-            <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">BULAN: AGUSTUS 2026</span>
+            <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">💡</span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-xs text-left border-collapse">
@@ -407,7 +418,7 @@
     </main>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxmu0LvuxxW65CRKlaQ1shby3OBwz8cosLOVWqd2lgLaaoAAmJ6XPYxdjlqfkcjw9CR/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJsaljsNU41z8EpocnhFe4DlUyvW1Rcrl0oYF7T_XnIKkYaqdkZFJNrdFhAbchorEs/exec"; 
         
         let selectedYear = "2026"; 
         let cacheKey = `p2tl_dashboard_cache_${selectedYear}`;
@@ -1795,6 +1806,102 @@ function renderPjuNonPjuTables() {
     footNonPju += `<td class="px-3 py-2.5 text-center bg-[#111827] text-yellow-300 font-mono sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">${Math.round(grandTotalNonPju).toLocaleString('id-ID')}</td>`;
     footNonPju += `</tr>`;
     document.getElementById('non-pju-table-foot').innerHTML = footNonPju;
+}
+
+// 1. Tangkap file Excel yang di-upload
+function handleFileUpload(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data = new Uint8Array(e.target.result);
+    var workbook = XLSX.read(data, { type: 'array' });
+    var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    // Ubah sheet ke format JSON (Array of Arrays agar presisi berdasarkan indeks kolom)
+    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+    if (jsonData.length <= 1) {
+      alert("File Excel kosong atau tidak memiliki data baris.");
+      return;
+    }
+
+    var headers = jsonData[0]; // Baris 1 header excel
+    var rows = jsonData.slice(1); // Baris 2 ke bawah adalah data
+
+    // Mapping data khusus kolom B (index 1) sampai Y (index 24)
+    var formattedData = rows.map(function(row) {
+      return {
+        "NO AGENDA": row[1] !== undefined ? row[1] : "",
+        "IDPEL": row[2] !== undefined ? row[2] : "",
+        "NAMA": row[3] !== undefined ? row[3] : "",
+        "GOLONGAN": row[4] !== undefined ? row[4] : "",
+        "ALAMAT": row[5] !== undefined ? row[5] : "",
+        "TARIP": row[6] !== undefined ? row[6] : "",
+        "DAYA": row[7] !== undefined ? row[7] : "",
+        "KWH": row[8] !== undefined ? row[8] : "",
+        "RP KWH": row[9] !== undefined ? row[9] : "",
+        "RP BEBAN": row[10] !== undefined ? row[10] : "",
+        "RP TS": row[11] !== undefined ? row[11] : "",
+        "RP METERAI": row[12] !== undefined ? row[12] : "",
+        "SEGEL": row[13] !== undefined ? row[13] : "",
+        "RP MATERIAL": row[14] !== undefined ? row[14] : "",
+        "TOTAL P2TL": row[15] !== undefined ? row[15] : "",
+        "TUNAI": row[16] !== undefined ? row[16] : "",
+        "RP TOTAL ANGSUR": row[17] !== undefined ? row[17] : "",
+        "TGL REGISTER": row[18] !== undefined ? row[18] : "",
+        "NO SIP": row[19] !== undefined ? row[19] : "",
+        "TGL SPH": row[20] !== undefined ? row[20] : "",
+        "NO SPH": row[21] !== undefined ? row[21] : "",
+        "RP PPJ": row[22] !== undefined ? row[22] : "",
+        "RP UJL": row[23] !== undefined ? row[23] : "",
+        "RP PPN": row[24] !== undefined ? row[24] : ""
+      };
+    });
+
+    if (confirm(`Membaca ${formattedData.length} baris dari file Excel. Lanjutkan proses sinkronisasi database?`)) {
+      sendExcelDataToBackend(formattedData);
+    }
+    
+    event.target.value = ""; // Reset input
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// 2. Kirim ke Backend dan Tampilkan Pop-up
+function sendExcelDataToBackend(dataRows) {
+  if (typeof toggleLoading === 'function') toggleLoading(true);
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    body: JSON.stringify(dataRows),
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    }
+  })
+  .then(response => response.json())
+  .then(result => {
+    if (typeof toggleLoading === 'function') toggleLoading(false);
+    
+    if (result.status === "success") {
+      // Pop-up sesuai permintaan dengan jumlah baris yang berhasil di-upload
+      alert(`Data berhasil di upload dengan jumlah baris ${result.insertedCount}`);
+      
+      if (typeof loadData === 'function') {
+        loadData(true);
+      } else {
+        location.reload();
+      }
+    } else {
+      alert("Gagal: " + result.message);
+    }
+  })
+  .catch(error => {
+    if (typeof toggleLoading === 'function') toggleLoading(false);
+    console.error("Error:", error);
+    alert("Terjadi kesalahan koneksi saat mengunggah data.");
+  });
 }
     </script>
 </body>
