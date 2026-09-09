@@ -33,13 +33,13 @@
                 </div>
             </div>
 
-		<!-- TOMBOL UPLOAD EXCEL -->
-		<div class="flex items-center space-x-2 border-l border-slate-600 pl-4">
-  			<input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(event)">
-  				<label for="excelFile" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded cursor-pointer transition flex items-center space-x-1">
-   					 <span>📂 Upload TS AP2T</span>
-  				</label>
-		</div>
+<!-- TOMBOL UPLOAD EXCEL -->
+<div class="flex items-center space-x-2 border-l border-slate-600 pl-4">
+  <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(event)">
+  <label for="excelFile" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded cursor-pointer transition flex items-center space-x-1">
+    <span>📂 Upload TS AP2T</span>
+  </label>
+</div>
 
             <div class="flex flex-wrap items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
                 <div class="flex items-center space-x-1 pl-2 pr-1">
@@ -92,6 +92,9 @@
             </button>
             <button onclick="setMode('pk')" id="tab-pk" class="tab-btn px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-slate-200 text-slate-700 hover:bg-slate-300">
                 <i class="fa-solid fa-users-viewfinder"></i> Realisasi P & K
+            </button>
+            <button onclick="setMode('textreport')" id="tab-textreport" class="tab-btn px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 whitespace-nowrap bg-slate-200 text-slate-700 hover:bg-slate-300">
+                <i class="fa-solid fa-file-lines"></i> Text Report WA
             </button>
         </div>
 
@@ -173,7 +176,7 @@
         </div>
 
         <!-- KPI CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="kpi-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between">
                     <span id="kpi-box-title-1" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Target kWh</span>
@@ -212,7 +215,7 @@
         </div>
 
         <!-- VISUALISASI CHART -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div id="chart-section-container" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
                     <i class="fa-solid fa-chart-column text-blue-600"></i> Visualisasi Data
@@ -382,39 +385,97 @@
             </div>
         </div>
 
-<!-- CONTAINER HARIAN PJU NON PJU -->
-<div id="pju-daily-container" class="hidden space-y-6">
-    
-    <!-- Kontainer Tabel PJU Harian -->
-    <div class="bg-white rounded-xl border border-slate-700 shadow-xl overflow-hidden">
-        <div class="px-4 py-3 bg-[#1e232a] text-white flex justify-between items-center border-b border-slate-700">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100">REALISASI HARIAN - PJU</h3>
-            <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">🚦</span>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left border-collapse">
-                <thead id="pju-table-head" class="bg-[#f1f5f9] text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200"></thead>
-                <tbody id="pju-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
-                <tfoot id="pju-table-foot"></tfoot>
-            </table>
-        </div>
-    </div>
+        <!-- CONTAINER HARIAN PJU NON PJU -->
+        <div id="pju-daily-container" class="hidden space-y-6">
+            
+            <!-- Kontainer Tabel PJU Harian -->
+            <div class="bg-white rounded-xl border border-slate-700 shadow-xl overflow-hidden">
+                <div class="px-4 py-3 bg-[#1e232a] text-white flex justify-between items-center border-b border-slate-700">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100">REALISASI HARIAN - PJU</h3>
+                    <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">🚦</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead id="pju-table-head" class="bg-[#f1f5f9] text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200"></thead>
+                        <tbody id="pju-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+                        <tfoot id="pju-table-foot"></tfoot>
+                    </table>
+                </div>
+            </div>
 
-    <!-- Kontainer Tabel NON PJU Harian -->
-    <div class="bg-white rounded-xl border border-slate-700 shadow-xl overflow-hidden">
-        <div class="px-4 py-3 bg-[#1e232a] text-white flex justify-between items-center border-b border-slate-700">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100">REALISASI HARIAN - NON PJU</h3>
-            <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">💡</span>
+            <!-- Kontainer Tabel NON PJU Harian -->
+            <div class="bg-white rounded-xl border border-slate-700 shadow-xl overflow-hidden">
+                <div class="px-4 py-3 bg-[#1e232a] text-white flex justify-between items-center border-b border-slate-700">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100">REALISASI HARIAN - NON PJU</h3>
+                    <span class="text-[11px] bg-[#27303f] text-slate-200 font-semibold px-3 py-1 rounded-md border border-slate-600">💡</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead id="non-pju-table-head" class="bg-[#f1f5f9] text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200"></thead>
+                        <tbody id="non-pju-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+                        <tfoot id="non-pju-table-foot"></tfoot>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left border-collapse">
-                <thead id="non-pju-table-head" class="bg-[#f1f5f9] text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200"></thead>
-                <tbody id="non-pju-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
-                <tfoot id="non-pju-table-foot"></tfoot>
-            </table>
+
+        <!-- CONTAINER TEXT REPORT WA -->
+        <div id="text-report-container" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-file-lines text-emerald-600"></i> Generator Text Report WhatsApp Executive
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">Pilih bulan dan tanggal laporan, lalu klik Generate Report untuk menyusun format otomatis.</p>
+                    </div>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div class="flex items-center gap-1.5">
+                            <label class="text-xs font-bold text-slate-600">Bulan:</label>
+                            <select id="reportBulan" class="bg-slate-100 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer">
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9" selected>September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <label class="text-xs font-bold text-slate-600">Tanggal:</label>
+                            <select id="reportTanggal" class="bg-slate-100 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer">
+                                <!-- Generated via JS -->
+                            </select>
+                        </div>
+                        <button onclick="generateTextReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Report
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Hasil Text Report:</label>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copyTextReport()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> Copy Text
+                            </button>
+                            <button onclick="sendWhatsAppReport()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> Send WA
+                            </button>
+                        </div>
+                    </div>
+                    <textarea id="reportOutput" rows="14" class="w-full p-4 text-xs font-mono bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none custom-scrollbar" placeholder="Klik 'Generate Report' untuk menampilkan laporan..."></textarea>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+
     </main>
 
     <script>
@@ -429,8 +490,8 @@
         let dbP2TL = [];
         let currentMode = 'harian';
         let p2tlChartInstance = null;
-		let currentSortColumn = null;
-		let isAscending = true;
+        let currentSortColumn = null;
+        let isAscending = true;
 
         const filterBulanEl = document.getElementById('filterBulan');
         const filterHariEl = document.getElementById('filterHari');
@@ -445,12 +506,33 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initHariDropdown();
+            initReportTanggalDropdown();
             if (filterTahunEl) filterTahunEl.value = selectedYear;
             if (filterBulanEl) filterBulanEl.value = (new Date().getMonth() + 1).toString();
             
+	    // --- AUTO SELECT H-1 UNTUK TEXT REPORT ---
+            setReportDefaultToYesterday();
+            // ------------------------------------------
+
             initChart();
             loadCachedDataFirst();
         });
+
+	// Fungsi untuk mengatur Bulan dan Tanggal default ke H-1 dari hari ini
+	function setReportDefaultToYesterday() {
+ 	   const today = new Date();
+	    // Kurangi 1 hari (H-1)
+	    today.setDate(today.getDate() - 1);
+
+ 	   const targetBulan = today.getMonth() + 1; // Bulan (1-12)
+ 	   const targetTanggal = today.getDate();    // Tanggal (1-31)
+
+ 	   const reportBulanEl = document.getElementById('reportBulan');
+ 	   const reportTanggalEl = document.getElementById('reportTanggal');
+
+ 	   if (reportBulanEl) reportBulanEl.value = targetBulan.toString();
+  	   if (reportTanggalEl) reportTanggalEl.value = targetTanggal.toString();
+	}
 
         function initHariDropdown() {
             if (!filterHariEl) return;
@@ -460,6 +542,19 @@
                 opt.value = i.toString();
                 opt.innerText = `Tanggal ${i}`;
                 filterHariEl.appendChild(opt);
+            }
+        }
+
+        function initReportTanggalDropdown() {
+            const reportTanggalEl = document.getElementById('reportTanggal');
+            if (!reportTanggalEl) return;
+            reportTanggalEl.innerHTML = '';
+            for (let i = 1; i <= 31; i++) {
+                const opt = document.createElement('option');
+                opt.value = i.toString();
+                opt.innerText = `Tanggal ${i}`;
+                if (i === 4) opt.selected = true; // Default tgl 4 sesuai contoh
+                reportTanggalEl.appendChild(opt);
             }
         }
 
@@ -529,7 +624,7 @@
             return isNaN(parsed) ? 0 : parsed;
         }
 
-		function parseRawData(rawArray) {
+        function parseRawData(rawArray) {
             return rawArray.map(item => {
                 let d = null;
                 let bVal = parseNum(item.BULAN || item.Bulan || 0);
@@ -541,10 +636,8 @@
                         bVal = d.getMonth() + 1;
                         hVal = d.getDate();
                     } else {
-                        // Coba tangani jika format tanggal string sederhana (misal: "2026-01-15" atau "15/01/2026")
                         let parts = String(item.TANGGAL).split(/[-/]/);
                         if (parts.length === 3) {
-                            // Asumsi format YYYY-MM-DD atau DD-MM-YYYY
                             if (parts[0].length === 4) {
                                 bVal = parseInt(parts[1]);
                                 hVal = parseInt(parts[2]);
@@ -616,7 +709,11 @@
 
             const mainTableContainer = document.getElementById('main-table-container');
             const lmTables = document.getElementById('lm-tables-container');
-	    	const PJUdaily = document.getElementById('pju-daily-container');
+            const PJUdaily = document.getElementById('pju-daily-container');
+            const textReportContainer = document.getElementById('text-report-container');
+            const filterContainer = document.getElementById('tab-month-container');
+            const kpiContainer = document.getElementById('kpi-cards-container');
+            const chartContainer = document.getElementById('chart-section-container');
 
             const kpiTitle1 = document.getElementById('kpi-box-title-1');
             const kpiDesc1 = document.getElementById('kpi-box-desc-1');
@@ -633,6 +730,24 @@
             const kpiTitle4 = document.getElementById('kpi-box-title-4');
             const kpiDesc4 = document.getElementById('kpi-box-desc-4');
             const kpiIcon4 = document.getElementById('kpi-box-icon-4');
+
+            // Reset visibility
+            mainTableContainer.classList.add('hidden');
+            lmTables.classList.add('hidden');
+            PJUdaily.classList.add('hidden');
+            textReportContainer.classList.add('hidden');
+            filterContainer.classList.remove('hidden');
+            kpiContainer.classList.remove('hidden');
+            chartContainer.classList.remove('hidden');
+
+            if (mode === 'textreport') {
+                textReportContainer.classList.remove('hidden');
+                filterContainer.classList.add('hidden');
+                kpiContainer.classList.add('hidden');
+                chartContainer.classList.add('hidden');
+                generateTextReport(); // Auto generate on click tab
+                return;
+            }
 
             if (mode === 'pju') {
                 if (kpiTitle1) kpiTitle1.innerText = "TOTAL KWH REALISASI";
@@ -736,18 +851,17 @@
 
             if (mode === 'lm') {
                 mainTableContainer.classList.add('hidden');
-				PJUdaily.classList.add('hidden');
+                PJUdaily.classList.add('hidden');
                 lmTables.classList.remove('hidden');
+            } else if (mode === 'pju') {
+                mainTableContainer.classList.remove('hidden');
+                PJUdaily.classList.remove('hidden');
+                lmTables.classList.add('hidden');
             } else {
                 mainTableContainer.classList.remove('hidden');
-				PJUdaily.classList.add('hidden');
                 lmTables.classList.add('hidden');
             }
-	  		 if (mode === 'pju') {
-                mainTableContainer.classList.remove('hidden');
-				PJUdaily.classList.remove('hidden');
-                lmTables.classList.add('hidden');
-            }
+
             renderDashboard();
         }
 
@@ -799,15 +913,139 @@
         }
 
         function renderDashboard() {
+            if (currentMode === 'textreport') return; // handled separately
             if (currentMode === 'harian') renderHarianView();
             else if (currentMode === 'matriks') renderMatriksView();
             else if (currentMode === 'range') renderRangeView();
             else if (currentMode === 'lm') renderLMView();
-  	    	else if (currentMode === 'pju') {
-        	renderPJUView();
-        	renderPjuNonPjuTables(); // <--- Tambahkan pemanggilan di sini agar tabel ikut terisi
-    	    }
+            else if (currentMode === 'pju') {
+                renderPJUView();
+                renderPjuNonPjuTables();
+            }
             else if (currentMode === 'pk') renderPKView();
+        }
+
+        /* GENERATE TEXT REPORT WA FUNCTION */
+	function generateTextReport() {
+            const bulanVal = parseInt(document.getElementById('reportBulan').value);
+            const tanggalVal = parseInt(document.getElementById('reportTanggal').value);
+            const bulanNama = monthNames[bulanVal - 1];
+
+            // 1. Realisasi & Target Kumulatif s.d Tanggal & Bulan Terpilih (dari awal tahun s.d tanggal pilihan)
+            let targetKumTotal = 0;
+            let realKumTotal = 0;
+            
+            for (let m = 1; m <= 12; m++) {
+                // Tentukan batas hari untuk bulan m
+                let maxHariBulan = 31;
+                const tempDate = new Date(parseInt(selectedYear), m, 0); // hari terakhir di bulan m
+                maxHariBulan = tempDate.getDate();
+
+                for (let d = 1; d <= maxHariBulan; d++) {
+                    // Jika bulan masih di bawah bulan pilihan, atau (di bulan pilihan dan hari <= tanggal pilihan)
+                    if (m < bulanVal || (m === bulanVal && d <= tanggalVal)) {
+                        // Tambah target harian untuk akumulasi kumulatif
+                        unitsList.forEach(u => {
+                            const tObj = getTargetUnit(u, m);
+                            targetKumTotal += tObj.targetHarian > 0 ? tObj.targetHarian : (tObj.targetBulanan / maxHariBulan);
+                        });
+
+                        // Tambah realisasi harian
+                        const rowsHari = dbP2TL.filter(r => r.bulan === m && r.hari === d);
+                        realKumTotal += rowsHari.reduce((s, r) => s + r.kwhRealisasi, 0);
+                    }
+                }
+            }
+            const persenKum = targetKumTotal > 0 ? (realKumTotal / targetKumTotal) * 100 : 0;
+
+            // 2. Realisasi Bulan Berjalan s.d Tanggal Terpilih (hanya pada bulan tersebut dari tgl 1 s.d tanggal terpilih)
+            let targetBulanVal = 0;
+            unitsList.forEach(u => {
+                targetBulanVal += getTargetUnit(u, bulanVal).targetBulanan;
+            });
+
+            // Target proporsional s.d tanggal terpilih untuk bulan berjalan (opsional, atau tetap target full bulan sesuai prompt)
+            let targetBulanSausd = 0;
+            const maxHariAktif = new Date(parseInt(selectedYear), bulanVal, 0).getDate();
+            unitsList.forEach(u => {
+                const tObj = getTargetUnit(u, bulanVal);
+                const tBulanan = tObj.targetBulanan;
+                targetBulanSausd = tBulanan; // Jika di prompt menggunakan target bulan penuh, gunakan tBulanan
+            });
+
+            const rowsBulanBerjalan = dbP2TL.filter(r => r.bulan === bulanVal && r.hari <= tanggalVal);
+            const realBulanBerjalan = rowsBulanBerjalan.reduce((s, r) => s + r.kwhRealisasi, 0);
+            const persenBulanBerjalan = targetBulanBulanVal_check = targetBulanVal > 0 ? (realBulanBerjalan / targetBulanVal) * 100 : 0;
+
+            // 3. Realisasi P2TL Harian (pada tanggal terpilih)
+            let targetHarianTotal = 0;
+            unitsList.forEach(u => {
+                targetHarianTotal += getTargetUnit(u, bulanVal).targetHarian;
+            });
+            const rowsHariIni = dbP2TL.filter(r => r.bulan === bulanVal && r.hari === tanggalVal);
+            const realHarianIni = rowsHariIni.reduce((s, r) => s + r.kwhRealisasi, 0);
+            const persenHarian = targetHarianTotal > 0 ? (realHarianIni / targetHarianTotal) * 100 : 0;
+
+            // 4 & 5. Hitung jumlah hari dengan realisasi > 100 rb kWh dan Target > 100 rb kWh pada bulan tersebut s.d tanggal pilihan
+            let countTargetGt100k = 0;
+            let countRealGt100k = 0;
+
+            for (let d = 1; d <= tanggalVal; d++) {
+                const dateCheck = new Date(parseInt(selectedYear), bulanVal - 1, d);
+                if (dateCheck.getMonth() !== bulanVal - 1) continue;
+
+                let hTarget = 0;
+                unitsList.forEach(u => {
+                    hTarget += getTargetUnit(u, bulanVal).targetHarian;
+                });
+                if (hTarget > 100000) countTargetGt100k++;
+
+                const dRows = dbP2TL.filter(r => r.bulan === bulanVal && r.hari === d);
+                const dReal = dRows.reduce((s, r) => s + r.kwhRealisasi, 0);
+                if (dReal > 100000) countRealGt100k++;
+            }
+
+            // Format Angka Indonesia (. sebagai pemisah ribuan, , sebagai desimal)
+            const fmt = (num, decimals = 0) => {
+                return Number(num).toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+            };
+
+            const reportText = `Assalamu'alaykum warohmatullahi wabarokatuh
+
+Yth :
+EVP ODS
+EVP ODM
+EVP ODJ
+
+Izin kami sampaikan laporan realisasi P2TL UP3 Parepare ${tanggalVal} ${bulanNama} ${selectedYear} :
+
+1. Realisasi kumulatif sd ${tanggalVal} ${bulanNama} ${selectedYear} sebesar ${fmt(realKumTotal)} kWh dari target ${fmt(targetKumTotal)} kWh atau sebesar ${fmt(persenKum, 2)} %
+2. Realisasi bulan ${bulanNama} sd saat ini ${fmt(realBulanBerjalan)} kWh dari target ${fmt(targetBulanVal)} kWh Realisasi ${fmt(persenBulanBerjalan, 2)} %
+3. Realisasi P2TL harian ${fmt(realHarianIni)} kWh dengan target harian ${fmt(targetHarianTotal)} kWh dari pencapaian harian ${fmt(persenHarian, 2)} %
+4. Target > 100 rb kWh = 1 hari
+5. Realisasi > 100 rb kWh = 1 hari
+
+Demikian Laporan realisasi P2TL UP3 Parepare bapak, terima kasih`;
+
+            document.getElementById('reportOutput').value = reportText;
+        }
+
+        function copyTextReport() {
+            const textarea = document.getElementById('reportOutput');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                alert("Text report berhasil disalin ke clipboard!");
+            }).catch(err => {
+                alert("Gagal menyalin text.");
+            });
+        }
+
+        function sendWhatsAppReport() {
+            const textarea = document.getElementById('reportOutput');
+            const textEncoded = encodeURIComponent(textarea.value);
+            const waUrl = `https://api.whatsapp.com/send?text=${textEncoded}`;
+            window.open(waUrl, '_blank');
         }
 
         /* 1. FILTER HARIAN VIEW */
@@ -852,7 +1090,7 @@
 
             document.getElementById('kpi-target').innerText = Math.round(totalTarget).toLocaleString('id-ID') + " kWh";
             document.getElementById('kpi-realisasi').innerText = Math.round(totalReal).toLocaleString('id-ID') + " kWh";
-            updateGapKPI(totalTarget, totalReal) + " kWh";
+            updateGapKPI(totalTarget, totalReal);
             document.getElementById('kpi-percentage').innerText = totalAch.toFixed(2) + "%";
 
             const thead = document.getElementById('table-head');
@@ -898,7 +1136,7 @@
             ]);
         }
 
-        /* 2. MATRIKS BULANAN VIEW (Header diubah menjadi Wrap Text) */
+        /* 2. MATRIKS BULANAN VIEW */
         function renderMatriksView() {
             const filtered = getFilteredDataset();
             const selectedUnit = filterUnitEl.value;
@@ -911,7 +1149,6 @@
             }
 
             const thead = document.getElementById('table-head');
-            // Menghilangkan whitespace-nowrap pada th, menambahkan max-w, h-auto, dan leading-tight agar teks otomatis membungkus (wrap text)
             thead.innerHTML = `
                 <tr class="align-middle">
                     <th class="px-3 py-3 border-r border-slate-200 bg-slate-200 font-extrabold w-28 whitespace-normal">UNIT / ULP</th>
@@ -1615,294 +1852,258 @@
             document.body.removeChild(downloadLink);
         }
 
-function sortTable(columnIndex, modeType) {
-    const table = document.getElementById("main-table");
-    const tbody = table.querySelector("tbody");
-    let rows = Array.from(tbody.querySelectorAll("tr"));
+        function sortTable(columnIndex, modeType) {
+            const table = document.getElementById("main-table");
+            const tbody = table.querySelector("tbody");
+            let rows = Array.from(tbody.querySelectorAll("tr"));
 
-    // Jika baris kosong atau hanya ada baris pesan "Tidak ada data"
-    if (rows.length === 0 || rows[0].querySelector("td.text-center")) return;
+            if (rows.length === 0 || rows[0].querySelector("td.text-center")) return;
 
-    // === LANGKAH TAMBAHAN: AMANKAN BARIS TOTAL ===
-    // Asumsinya baris total memiliki teks "TOTAL" atau kelas/atribut khusus.
-    // Atau jika baris total selalu berada di baris paling bawah:
-    let totalRow = null;
-    const lastRow = rows[rows.length - 1];
-    
-    // Cek apakah baris terakhir adalah baris total (berdasarkan teks "TOTAL" di kolom pertama)
-    if (lastRow && lastRow.cells[0].innerText.toUpperCase().includes("TOTAL")) {
-        totalRow = rows.pop(); // Keluarkan baris terakhir dari array sorting
-    }
-    // =============================================
-
-    // Toggle arah pengurutan (ascending / descending)
-    if (currentSortColumn === columnIndex) {
-        isAscending = !isAscending;
-    } else {
-        currentSortColumn = columnIndex;
-        isAscending = true;
-    }
-
-    // Urutkan sisa baris data
-    rows.sort((rowA, rowB) => {
-        const cellA = rowA.querySelectorAll("td")[columnIndex].innerText.trim();
-        const cellB = rowB.querySelectorAll("td")[columnIndex].innerText.trim();
-
-        const cleanA = parseFloat(cellA.replace(/\./g, '').replace(',', '.').replace('%', ''));
-        const cleanB = parseFloat(cellB.replace(/\./g, '').replace(',', '.').replace('%', ''));
-
-        if (!isNaN(cleanA) && !isNaN(cleanB)) {
-            return isAscending ? cleanA - cleanB : cleanB - cleanA;
-        } else {
-            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
-        }
-    });
-
-    // Masukkan kembali baris data yang sudah diurutkan ke dalam tbody
-    rows.forEach(row => tbody.appendChild(row));
-
-    // === KEMBALIKAN BARIS TOTAL KE POSISI PALING BAWAH ===
-    if (totalRow) {
-        tbody.appendChild(totalRow);
-    }
-    // =================================================
-
-    // Perbarui ikon indikator sort di header
-    updateSortIcons(modeType, columnIndex);
-}
-
-function updateSortIcons(modeType, activeIndex) {
-    const headers = document.querySelectorAll("#main-table th");
-    headers.forEach((th, idx) => {
-        const icon = th.querySelector("i");
-        if (icon) {
-            if (idx === activeIndex) {
-                icon.className = isAscending 
-                    ? "fa-solid fa-sort-up text-blue-600 text-[11px] ml-1" 
-                    : "fa-solid fa-sort-down text-blue-600 text-[11px] ml-1";
-            } else {
-                icon.className = "fa-solid fa-sort text-slate-400 text-[10px] ml-1";
+            let totalRow = null;
+            const lastRow = rows[rows.length - 1];
+            
+            if (lastRow && lastRow.cells[0].innerText.toUpperCase().includes("TOTAL")) {
+                totalRow = rows.pop();
             }
-        }
-    });
-}
 
-// Fungsi pembantu untuk membuat header tabel dengan kolom Total Realisasi yang sticky
-function generateTableHead(headId) {
-    let html = '<tr class="border-b border-slate-300">';
-    // Kolom Unit (Sticky di kiri)
-    html += '<th class="px-3 py-2.5 font-bold text-slate-800 bg-[#e2e8f0] border-r border-slate-300 sticky left-0 z-20">UNIT / ULP</th>';
-    
-    // Header Tanggal 1 s.d 31
-    for (let day = 1; day <= 31; day++) {
-        html += `<th class="px-2 py-2.5 text-center font-bold text-slate-700 border-r border-slate-200 w-10">${day}</th>`;
-    }
-    
-    // Kolom Total Realisasi (Sticky di kanan, z-index lebih tinggi agar berada di atas konten lain)
-    html += '<th class="px-3 py-2.5 font-bold text-slate-800 text-center bg-[#d1fae5] border-l border-r border-slate-300 sticky right-0 z-20 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">TOTAL REALISASI</th>';
-
-    html += '</tr>';
-    document.getElementById(headId).innerHTML = html;
-}
-
-// Fungsi render utama yang memuat sticky kanan untuk Total Realisasi
-function renderPjuNonPjuTables() {
-    const selectedUnit = filterUnitEl ? filterUnitEl.value : 'ALL';
-    const startMonth = filterBulanAwalEl ? parseInt(filterBulanAwalEl.value) : 1;
-    const endMonth = filterBulanAkhirEl ? parseInt(filterBulanAkhirEl.value) : 12;
-    const unitsToRender = selectedUnit === 'ALL' ? unitsList : [selectedUnit];
-
-    generateTableHead('pju-table-head');
-    generateTableHead('non-pju-table-head');
-
-    let dailyTotalsPju = Array(32).fill(0);
-    let dailyTotalsNonPju = Array(32).fill(0);
-
-    // 2. Render Body Tabel PJU Harian
-    let pjuBodyHtml = '';
-    let grandTotalPju = 0;
-    
-    unitsToRender.forEach(unit => {
-        let rowHtml = `<tr class="hover:bg-slate-50 transition-colors"><td class="px-3 py-2 font-semibold text-slate-800 bg-white border-r border-slate-200 sticky left-0 z-10">${unit}</td>`;
-        
-        let totalUnit = 0;
-        for (let day = 1; day <= 31; day++) {
-            const matches = dbP2TL.filter(r => r.unit === unit && r.bulan >= startMonth && r.bulan <= endMonth && r.hari === day);
-            let val = matches.reduce((sum, r) => sum + r.pjuRealisasi, 0);
-            
-            totalUnit += val;
-            dailyTotalsPju[day] += val;
-            
-            if (val > 0) {
-                rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 bg-[#f0fdf4] text-emerald-800 font-medium">${Math.round(val).toLocaleString('id-ID')}</td>`;
+            if (currentSortColumn === columnIndex) {
+                isAscending = !isAscending;
             } else {
-                rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 text-slate-300">-</td>`;
+                currentSortColumn = columnIndex;
+                isAscending = true;
             }
+
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.querySelectorAll("td")[columnIndex].innerText.trim();
+                const cellB = rowB.querySelectorAll("td")[columnIndex].innerText.trim();
+
+                const cleanA = parseFloat(cellA.replace(/\./g, '').replace(',', '.').replace('%', ''));
+                const cleanB = parseFloat(cellB.replace(/\./g, '').replace(',', '.').replace('%', ''));
+
+                if (!isNaN(cleanA) && !isNaN(cleanB)) {
+                    return isAscending ? cleanA - cleanB : cleanB - cleanA;
+                } else {
+                    return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+                }
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+
+            if (totalRow) {
+                tbody.appendChild(totalRow);
+            }
+
+            updateSortIcons(modeType, columnIndex);
         }
 
-        grandTotalPju += totalUnit;
-        // Kolom Total Baris Unit (Sticky di kanan)
-        rowHtml += `<td class="px-3 py-2 text-center font-bold text-slate-800 bg-[#ecfdf5] border-l border-r border-slate-200 sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">${totalUnit > 0 ? Math.round(totalUnit).toLocaleString('id-ID') : '0'}</td>`;
-        rowHtml += `</tr>`;
-
-        pjuBodyHtml += rowHtml;
-    });
-    document.getElementById('pju-table-body').innerHTML = pjuBodyHtml;
-
-    // Footer Total PJU UP3
-    let footPju = `<tr class="bg-[#1e232a] text-white font-bold">`;
-    footPju += `<td class="px-3 py-2.5 uppercase sticky left-0 z-10 bg-[#1e232a]">TOTAL UP3 (${monthNames[startMonth - 1]} s.d ${monthNames[endMonth - 1]})</td>`;
-
-    for(let d = 1; d <= 31; d++) {
-        let dVal = dailyTotalsPju[d];
-        footPju += `<td class="px-1 py-2.5 text-center text-amber-300 font-mono text-xs">${dVal > 0 ? Math.round(dVal).toLocaleString('id-ID') : '-'}</td>`;
-    }
-    // Kolom Grand Total di Footer (Sticky di kanan)
-    footPju += `<td class="px-3 py-2.5 text-center bg-[#111827] text-yellow-300 font-mono sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">${Math.round(grandTotalPju).toLocaleString('id-ID')}</td>`;
-    footPju += `</tr>`;
-    document.getElementById('pju-table-foot').innerHTML = footPju;
-
-
-    // 3. Render Body Tabel NON PJU Harian
-    let nonPjuBodyHtml = '';
-    let grandTotalNonPju = 0;
-    
-    unitsToRender.forEach(unit => {
-        let rowHtml = `<tr class="hover:bg-slate-50 transition-colors"><td class="px-3 py-2 font-semibold text-slate-800 bg-white border-r border-slate-200 sticky left-0 z-10">${unit}</td>`;
-        
-        let totalUnit = 0;
-        for (let day = 1; day <= 31; day++) {
-            const matches = dbP2TL.filter(r => r.unit === unit && r.bulan >= startMonth && r.bulan <= endMonth && r.hari === day);
-            let val = matches.reduce((sum, r) => sum + r.nonPjuRealisasi, 0);
-            
-            totalUnit += val;
-            dailyTotalsNonPju[day] += val;
-            
-            if (val > 0) {
-                rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 bg-[#f0fdf4] text-emerald-800 font-medium">${Math.round(val).toLocaleString('id-ID')}</td>`;
-            } else {
-                rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 text-slate-300">-</td>`;
-            }
+        function updateSortIcons(modeType, activeIndex) {
+            const headers = document.querySelectorAll("#main-table th");
+            headers.forEach((th, idx) => {
+                const icon = th.querySelector("i");
+                if (icon) {
+                    if (idx === activeIndex) {
+                        icon.className = isAscending 
+                            ? "fa-solid fa-sort-up text-blue-600 text-[11px] ml-1" 
+                            : "fa-solid fa-sort-down text-blue-600 text-[11px] ml-1";
+                    } else {
+                        icon.className = "fa-solid fa-sort text-slate-400 text-[10px] ml-1";
+                    }
+                }
+            });
         }
 
-        grandTotalNonPju += totalUnit;
-        // Kolom Total Baris Unit (Sticky di kanan)
-        rowHtml += `<td class="px-3 py-2 text-center font-bold text-slate-800 bg-[#ecfdf5] border-l border-r border-slate-200 sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">${totalUnit > 0 ? Math.round(totalUnit).toLocaleString('id-ID') : '0'}</td>`;
-        rowHtml += `</tr>`;
+        function generateTableHead(headId) {
+            let html = '<tr class="border-b border-slate-300">';
+            html += '<th class="px-3 py-2.5 font-bold text-slate-800 bg-[#e2e8f0] border-r border-slate-300 sticky left-0 z-20">UNIT / ULP</th>';
+            
+            for (let day = 1; day <= 31; day++) {
+                html += `<th class="px-2 py-2.5 text-center font-bold text-slate-700 border-r border-slate-200 w-10">${day}</th>`;
+            }
+            
+            html += '<th class="px-3 py-2.5 font-bold text-slate-800 text-center bg-[#d1fae5] border-l border-r border-slate-300 sticky right-0 z-20 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">TOTAL REALISASI</th>';
 
-        nonPjuBodyHtml += rowHtml;
-    });
-    document.getElementById('non-pju-table-body').innerHTML = nonPjuBodyHtml;
+            html += '</tr>';
+            document.getElementById(headId).innerHTML = html;
+        }
 
-    // Footer Total NON PJU UP3
-    let footNonPju = `<tr class="bg-[#1e232a] text-white font-bold">`;
-    footNonPju += `<td class="px-3 py-2.5 uppercase sticky left-0 z-10 bg-[#1e232a]">TOTAL UP3 (${monthNames[startMonth - 1]} s.d ${monthNames[endMonth - 1]})</td>`;
+        function renderPjuNonPjuTables() {
+            const selectedUnit = filterUnitEl ? filterUnitEl.value : 'ALL';
+            const startMonth = filterBulanAwalEl ? parseInt(filterBulanAwalEl.value) : 1;
+            const endMonth = filterBulanAkhirEl ? parseInt(filterBulanAkhirEl.value) : 12;
+            const unitsToRender = selectedUnit === 'ALL' ? unitsList : [selectedUnit];
 
-    for(let d = 1; d <= 31; d++) {
-        let dVal = dailyTotalsNonPju[d];
-        footNonPju += `<td class="px-1 py-2.5 text-center text-amber-300 font-mono text-xs">${dVal > 0 ? Math.round(dVal).toLocaleString('id-ID') : '-'}</td>`;
-    }
-    // Kolom Grand Total di Footer (Sticky di kanan)
-    footNonPju += `<td class="px-3 py-2.5 text-center bg-[#111827] text-yellow-300 font-mono sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">${Math.round(grandTotalNonPju).toLocaleString('id-ID')}</td>`;
-    footNonPju += `</tr>`;
-    document.getElementById('non-pju-table-foot').innerHTML = footNonPju;
-}
+            generateTableHead('pju-table-head');
+            generateTableHead('non-pju-table-head');
 
-// 1. Tangkap file Excel yang di-upload
-function handleFileUpload(event) {
-  var file = event.target.files[0];
-  if (!file) return;
+            let dailyTotalsPju = Array(32).fill(0);
+            let dailyTotalsNonPju = Array(32).fill(0);
 
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var data = new Uint8Array(e.target.result);
-    var workbook = XLSX.read(data, { type: 'array' });
-    var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            let pjuBodyHtml = '';
+            let grandTotalPju = 0;
+            
+            unitsToRender.forEach(unit => {
+                let rowHtml = `<tr class="hover:bg-slate-50 transition-colors"><td class="px-3 py-2 font-semibold text-slate-800 bg-white border-r border-slate-200 sticky left-0 z-10">${unit}</td>`;
+                
+                let totalUnit = 0;
+                for (let day = 1; day <= 31; day++) {
+                    const matches = dbP2TL.filter(r => r.unit === unit && r.bulan >= startMonth && r.bulan <= endMonth && r.hari === day);
+                    let val = matches.reduce((sum, r) => sum + r.pjuRealisasi, 0);
+                    
+                    totalUnit += val;
+                    dailyTotalsPju[day] += val;
+                    
+                    if (val > 0) {
+                        rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 bg-[#f0fdf4] text-emerald-800 font-medium">${Math.round(val).toLocaleString('id-ID')}</td>`;
+                    } else {
+                        rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 text-slate-300">-</td>`;
+                    }
+                }
 
-    // Ubah sheet ke format JSON (Array of Arrays agar presisi berdasarkan indeks kolom)
-    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                grandTotalPju += totalUnit;
+                rowHtml += `<td class="px-3 py-2 text-center font-bold text-slate-800 bg-[#ecfdf5] border-l border-r border-slate-200 sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">${totalUnit > 0 ? Math.round(totalUnit).toLocaleString('id-ID') : '0'}</td>`;
+                rowHtml += `</tr>`;
 
-    if (jsonData.length <= 1) {
-      alert("File Excel kosong atau tidak memiliki data baris.");
-      return;
-    }
+                pjuBodyHtml += rowHtml;
+            });
+            document.getElementById('pju-table-body').innerHTML = pjuBodyHtml;
 
-    var headers = jsonData[0]; // Baris 1 header excel
-    var rows = jsonData.slice(1); // Baris 2 ke bawah adalah data
+            let footPju = `<tr class="bg-[#1e232a] text-white font-bold">`;
+            footPju += `<td class="px-3 py-2.5 uppercase sticky left-0 z-10 bg-[#1e232a]">TOTAL UP3 (${monthNames[startMonth - 1]} s.d ${monthNames[endMonth - 1]})</td>`;
 
-    // Mapping data khusus kolom B (index 1) sampai Y (index 24)
-    var formattedData = rows.map(function(row) {
-      return {
-        "NO AGENDA": row[1] !== undefined ? row[1] : "",
-        "IDPEL": row[2] !== undefined ? row[2] : "",
-        "NAMA": row[3] !== undefined ? row[3] : "",
-        "GOLONGAN": row[4] !== undefined ? row[4] : "",
-        "ALAMAT": row[5] !== undefined ? row[5] : "",
-        "TARIP": row[6] !== undefined ? row[6] : "",
-        "DAYA": row[7] !== undefined ? row[7] : "",
-        "KWH": row[8] !== undefined ? row[8] : "",
-        "RP KWH": row[9] !== undefined ? row[9] : "",
-        "RP BEBAN": row[10] !== undefined ? row[10] : "",
-        "RP TS": row[11] !== undefined ? row[11] : "",
-        "RP METERAI": row[12] !== undefined ? row[12] : "",
-        "SEGEL": row[13] !== undefined ? row[13] : "",
-        "RP MATERIAL": row[14] !== undefined ? row[14] : "",
-        "TOTAL P2TL": row[15] !== undefined ? row[15] : "",
-        "TUNAI": row[16] !== undefined ? row[16] : "",
-        "RP TOTAL ANGSUR": row[17] !== undefined ? row[17] : "",
-        "TGL REGISTER": row[18] !== undefined ? row[18] : "",
-        "NO SIP": row[19] !== undefined ? row[19] : "",
-        "TGL SPH": row[20] !== undefined ? row[20] : "",
-        "NO SPH": row[21] !== undefined ? row[21] : "",
-        "RP PPJ": row[22] !== undefined ? row[22] : "",
-        "RP UJL": row[23] !== undefined ? row[23] : "",
-        "RP PPN": row[24] !== undefined ? row[24] : ""
-      };
-    });
+            for(let d = 1; d <= 31; d++) {
+                let dVal = dailyTotalsPju[d];
+                footPju += `<td class="px-1 py-2.5 text-center text-amber-300 font-mono text-xs">${dVal > 0 ? Math.round(dVal).toLocaleString('id-ID') : '-'}</td>`;
+            }
+            footPju += `<td class="px-3 py-2.5 text-center bg-[#111827] text-yellow-300 font-mono sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">${Math.round(grandTotalPju).toLocaleString('id-ID')}</td>`;
+            footPju += `</tr>`;
+            document.getElementById('pju-table-foot').innerHTML = footPju;
 
-    if (confirm(`Membaca ${formattedData.length} baris dari file Excel. Lanjutkan proses sinkronisasi database?`)) {
-      sendExcelDataToBackend(formattedData);
-    }
-    
-    event.target.value = ""; // Reset input
-  };
-  reader.readAsArrayBuffer(file);
-}
 
-// 2. Kirim ke Backend dan Tampilkan Pop-up
-function sendExcelDataToBackend(dataRows) {
-  if (typeof toggleLoading === 'function') toggleLoading(true);
+            let nonPjuBodyHtml = '';
+            let grandTotalNonPju = 0;
+            
+            unitsToRender.forEach(unit => {
+                let rowHtml = `<tr class="hover:bg-slate-50 transition-colors"><td class="px-3 py-2 font-semibold text-slate-800 bg-white border-r border-slate-200 sticky left-0 z-10">${unit}</td>`;
+                
+                let totalUnit = 0;
+                for (let day = 1; day <= 31; day++) {
+                    const matches = dbP2TL.filter(r => r.unit === unit && r.bulan >= startMonth && r.bulan <= endMonth && r.hari === day);
+                    let val = matches.reduce((sum, r) => sum + r.nonPjuRealisasi, 0);
+                    
+                    totalUnit += val;
+                    dailyTotalsNonPju[day] += val;
+                    
+                    if (val > 0) {
+                        rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 bg-[#f0fdf4] text-emerald-800 font-medium">${Math.round(val).toLocaleString('id-ID')}</td>`;
+                    } else {
+                        rowHtml += `<td class="px-1 py-2 text-center border-r border-slate-200 text-slate-300">-</td>`;
+                    }
+                }
 
-  fetch(WEB_APP_URL, {
-    method: "POST",
-    body: JSON.stringify(dataRows),
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    }
-  })
-  .then(response => response.json())
-  .then(result => {
-    if (typeof toggleLoading === 'function') toggleLoading(false);
-    
-    if (result.status === "success") {
-      // Pop-up sesuai permintaan dengan jumlah baris yang berhasil di-upload
-      alert(`Data berhasil di upload dengan jumlah baris ${result.insertedCount}`);
-      
-      if (typeof loadData === 'function') {
-        loadData(true);
-      } else {
-        location.reload();
-      }
-    } else {
-      alert("Gagal: " + result.message);
-    }
-  })
-  .catch(error => {
-    if (typeof toggleLoading === 'function') toggleLoading(false);
-    console.error("Error:", error);
-    alert("Terjadi kesalahan koneksi saat mengunggah data.");
-  });
-}
+                grandTotalNonPju += totalUnit;
+                rowHtml += `<td class="px-3 py-2 text-center font-bold text-slate-800 bg-[#ecfdf5] border-l border-r border-slate-200 sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">${totalUnit > 0 ? Math.round(totalUnit).toLocaleString('id-ID') : '0'}</td>`;
+                rowHtml += `</tr>`;
+
+                nonPjuBodyHtml += rowHtml;
+            });
+            document.getElementById('non-pju-table-body').innerHTML = nonPjuBodyHtml;
+
+            let footNonPju = `<tr class="bg-[#1e232a] text-white font-bold">`;
+            footNonPju += `<td class="px-3 py-2.5 uppercase sticky left-0 z-10 bg-[#1e232a]">TOTAL UP3 (${monthNames[startMonth - 1]} s.d ${monthNames[endMonth - 1]})</td>`;
+
+            for(let d = 1; d <= 31; d++) {
+                let dVal = dailyTotalsNonPju[d];
+                footNonPju += `<td class="px-1 py-2.5 text-center text-amber-300 font-mono text-xs">${dVal > 0 ? Math.round(dVal).toLocaleString('id-ID') : '-'}</td>`;
+            }
+            footNonPju += `<td class="px-3 py-2.5 text-center bg-[#111827] text-yellow-300 font-mono sticky right-0 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">${Math.round(grandTotalNonPju).toLocaleString('id-ID')}</td>`;
+            footNonPju += `</tr>`;
+            document.getElementById('non-pju-table-foot').innerHTML = footNonPju;
+        }
+
+        function handleFileUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                if (jsonData.length <= 1) {
+                    alert("File Excel kosong atau tidak memiliki data baris.");
+                    return;
+                }
+
+                var rows = jsonData.slice(1);
+
+                var formattedData = rows.map(function(row) {
+                    return {
+                        "NO AGENDA": row[1] !== undefined ? row[1] : "",
+                        "IDPEL": row[2] !== undefined ? row[2] : "",
+                        "NAMA": row[3] !== undefined ? row[3] : "",
+                        "GOLONGAN": row[4] !== undefined ? row[4] : "",
+                        "ALAMAT": row[5] !== undefined ? row[5] : "",
+                        "TARIP": row[6] !== undefined ? row[6] : "",
+                        "DAYA": row[7] !== undefined ? row[7] : "",
+                        "KWH": row[8] !== undefined ? row[8] : "",
+                        "RP KWH": row[9] !== undefined ? row[9] : "",
+                        "RP BEBAN": row[10] !== undefined ? row[10] : "",
+                        "RP TS": row[11] !== undefined ? row[11] : "",
+                        "RP METERAI": row[12] !== undefined ? row[12] : "",
+                        "SEGEL": row[13] !== undefined ? row[13] : "",
+                        "RP MATERIAL": row[14] !== undefined ? row[14] : "",
+                        "TOTAL P2TL": row[15] !== undefined ? row[15] : "",
+                        "TUNAI": row[16] !== undefined ? row[16] : "",
+                        "RP TOTAL ANGSUR": row[17] !== undefined ? row[17] : "",
+                        "TGL REGISTER": row[18] !== undefined ? row[18] : "",
+                        "NO SIP": row[19] !== undefined ? row[19] : "",
+                        "TGL SPH": row[20] !== undefined ? row[20] : "",
+                        "NO SPH": row[21] !== undefined ? row[21] : "",
+                        "RP PPJ": row[22] !== undefined ? row[22] : "",
+                        "RP UJL": row[23] !== undefined ? row[23] : "",
+                        "RP PPN": row[24] !== undefined ? row[24] : ""
+                    };
+                });
+
+                if (confirm(`Membaca ${formattedData.length} baris dari file Excel. Lanjutkan proses sinkronisasi database?`)) {
+                    sendExcelDataToBackend(formattedData);
+                }
+                
+                event.target.value = "";
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function sendExcelDataToBackend(dataRows) {
+            if (typeof toggleLoading === 'function') toggleLoading(true);
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify(dataRows),
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (typeof toggleLoading === 'function') toggleLoading(false);
+                
+                if (result.status === "success") {
+                    alert(`Data berhasil di upload dengan jumlah baris ${result.insertedCount}`);
+                    location.reload();
+                } else {
+                    alert("Gagal: " + result.message);
+                }
+            })
+            .catch(error => {
+                if (typeof toggleLoading === 'function') toggleLoading(false);
+                console.error("Error:", error);
+                alert("Terjadi kesalahan koneksi saat mengunggah data.");
+            });
+        }
     </script>
 </body>
 </html>
